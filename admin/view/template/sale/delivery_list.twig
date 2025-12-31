@@ -1,0 +1,479 @@
+{{ header }}{{ column_left }}
+<div id="content">
+<div class="page-header">
+  <div class="container-fluid">
+
+    <h1>{{ heading_title }}</h1>
+    <ul class="breadcrumb">
+      {% for breadcrumb in breadcrumbs %}
+      <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<div class="container-fluid">{% if error_warning %}
+  <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+  {% endif %}
+  {% if success %}
+  <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+  {% endif %}
+  <div class="row">
+    <div id="filter-order" class="col-md-3 col-md-push-9 col-sm-12 hidden-sm hidden-xs">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
+        </div>
+        <div class="panel-body">
+		  <div class="form-group">
+            <label class="control-label" for="input-name">Product name</label>
+            <input type="text" name="filter_name" value="{{ filter_name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label class="control-label" for="input-order-id">Order id</label>
+            <input type="text" name="filter_order_id" value="{{ filter_order_id }}" placeholder="{{ entry_order_id }}" id="input-order-id" class="form-control" />
+          </div>
+           <div class="form-group">
+                <label class="control-label" for="input-order-status">Order Status</label>
+               <!-- <input type="text" name="filter_order_status" value="{{ delivery_status }}" placeholder="{{ entry_order_status }}" id="input-order-status" class="form-control" list="delivery_statuses" />
+                <datalist id="delivery_statuses">
+            	<option value="Complete">
+            	<option value="Credited">
+            	<option value="Delivered">
+            	<option value="Delivery ready">
+            	<option value="Exchanged">
+            	<option value="Pending">
+            	<option value="Pickup Ready">
+            	<option value="Refunded">
+            	<option value="Shipping Ready">
+            	<option value="Waiting for Preorder">
+            </datalist> -->
+                <select name="filter_order_status" id="input-order-status" class="form-control">
+                     <option value="">Select a option</option>
+                    <option value="Complete">Complete</option>
+                    <option value="Credited">Credited</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Delivery ready">Delivery ready</option>
+                    <option value="Exchanged">Exchanged</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Pickup Ready">Pickup Ready</option>
+                    <option value="Refunded">Refunded</option>
+                    <option value="Shipping Ready">Shipping Ready</option>
+                    <option value="Waiting for Preorder">Waiting for Preorder</option>
+                </select>
+            </div>
+
+          
+          <div class="form-group text-right">
+            <button type="button" id="button-filter" class="btn btn-default"><i class="fa fa-filter"></i> {{ button_filter }}</button>
+          </div>
+        </div>
+      </div>
+<!-- Status panel (hidden by default) -->
+<div class="panel panel-default" id="status-panel">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-filter"></i>Order Status</h3>
+  </div>
+  <div class="panel-body">
+    <div class="form-group">
+      <div><label><input type="checkbox" id="exclude_completed" name="exclude_completed" value="1" {% if exclude_completed %}checked{% endif %}> Completed</label></div>
+      <div><label><input type="checkbox" id="exclude_refunded" name="exclude_refunded" value="1" {% if exclude_refunded %}checked{% endif %}> Refunded</label></div>
+      <div><label><input type="checkbox" id="exclude_credited" name="exclude_credited" value="1" {% if exclude_credited %}checked{% endif %}> Credited</label></div>
+    </div>
+  </div>
+</div>
+
+
+    </div>
+
+    <div class="col-md-9 col-md-pull-3 col-sm-12">
+      <div class="panel panel-default">
+<div class="panel-heading" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+  <h3 class="panel-title" style="margin:0;"><i class="fa fa-list"></i> {{ text_list }}</h3>
+  
+<div class="date-filters" style="display:flex; align-items:center; gap:10px;">
+    <span>Start Date:</span>
+    <input type="text" id="filter-start-date" name="filter_start_date" value="{{ filter_start_date }}" class="form-control date" placeholder="YYYY-MM-DD" style="width:130px; height:30px; padding:2px 5px;" />
+
+    <span>End Date:</span>
+    <input type="text" id="filter-end-date" name="filter_end_date" value="{{ filter_end_date }}" class="form-control date" placeholder="YYYY-MM-DD" style="width:130px; height:30px; padding:2px 5px;" />
+	
+    <!-- Search Button -->
+	<button type="button" class="btn btn-primary" id="button-date-search">
+        <i class="fa fa-search"></i> Search
+    </button>
+
+    <!-- Clear Button with ID -->
+    <button type="button" class="btn btn-danger" id="button-date-clear" onclick="clearDateInput()">
+        <i class="fa fa-times"></i> Clear
+    </button>
+</div>
+
+</div>
+        <div class="panel-body">
+          <form method="post" action="" enctype="multipart/form-data" id="form-order">
+              <div class="alphabet-filter">
+                {% for letter in 'a'..'z' %}
+                  <a href="#" class="alphabet-link" data-letter="{{ letter }}">{{ letter|upper }}</a>
+                {% endfor%}
+            </div>
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+<tr>
+        <td class="text-left">
+            <a href="{{ sort_order_numbers }}">
+                {{ column_order_numbers }}
+                {% if sort == 'oo.order_id' %}<i class="fa fa-sort-{{ order|lower }}"></i>{% else %}<i class="fa fa-sort"></i>{% endif %}
+            </a>
+        </td>
+        <td class="text-left">
+            <a href="{{ sort_customername }}">
+                {{ column_order_customername }}
+                {% if sort == 'customer_name' %}<i class="fa fa-sort-{{ order|lower }}"></i>{% else %}<i class="fa fa-sort"></i>{% endif %}
+            </a>
+        </td>
+        <td class="text-left">
+            <a href="{{ sort_order_status }}">
+                {{ column_order_status }}
+                {% if sort == 'order_status_name' %}<i class="fa fa-sort-{{ order|lower }}"></i>{% else %}<i class="fa fa-sort"></i>{% endif %}
+            </a>
+        </td>
+        <td class="text-left">
+            <a href="{{ sort_products }}">
+                {{ column_order_products }}
+                {% if sort == 'op.name' %}<i class="fa fa-sort-{{ order|lower }}"></i>{% else %}<i class="fa fa-sort"></i>{% endif %}
+            </a>
+        </td>
+        <td class="text-left">
+            <a href="{{ sort_date }}">
+                {{ column_order_date }}
+                {% if sort == 'oo.date_added' %}<i class="fa fa-sort-{{ order|lower }}"></i>{% else %}<i class="fa fa-sort"></i>{% endif %}
+            </a>
+        </td>
+        <td class="text-left">
+            <a href="{{ sort_productmodel }}">
+                {{ column_order_productmodel }}
+                {% if sort == 'op.model' %}<i class="fa fa-sort-{{ order|lower }}"></i>{% else %}<i class="fa fa-sort"></i>{% endif %}
+            </a>
+        </td>
+        <td class="text-left">
+            <a href="{{ sort_productquantity }}">
+                {{ column_order_productquantity }}
+                {% if sort == 'op.quantity' %}<i class="fa fa-sort-{{ order|lower }}"></i>{% else %}<i class="fa fa-sort"></i>{% endif %}
+            </a>
+        </td>
+        <td class="text-left">
+            <a href="{{ sort_totalordervalue }}">
+                {{ column_order_totalordervalue }}
+                {% if sort == 'oo.total' %}<i class="fa fa-sort-{{ order|lower }}"></i>{% else %}<i class="fa fa-sort"></i>{% endif %}
+            </a>
+        </td>
+    </tr>
+				  <tr class="filter-row">
+				   <td class="text-right"><input type="text" name="filter_order_id" value="{{ filter_order_id }}" id="search-orderid" class="form-control" placeholder="Search Order ID"></td>
+				   <td class="text-left"><input type="text" name="filter_customer" value="{{ filter_customer }}" id="search-customer" class="form-control" placeholder="Search by Customer Name"></td>
+				   <td class="text-left"><input type="text" name="filter_order_status_text" value="{{filter_order_status_text}}" id="search-order-status" class="form-control" placeholder="Search Order Status"></td>
+				   <td class="text-left"><input type="text" name="filter_products" value="{{ filter_products }}" id="search-products" class="form-control" placeholder="Search products Name"></td>
+				   <td class="text-center"></td>
+				   <td class="text-left"><input type="text" name="filter_productmodel" value="{{ filter_productmodel }}" id="search-productmodel" class="form-control" placeholder="Search productmodel"></td>
+				   <td class="text-center"></td>
+				  </tr>
+                </thead>
+                <tbody>
+                
+				{% if orders %}
+				{% for order in orders %}
+				<tr>
+				  <td class="text-center">
+					{{ order.order_id|raw }}
+				  </td>
+
+				  <td class="text-right">{{ order.customer }}</td>
+				                    <td class="text-right">
+					{% for delivery_status in delivery_statuses %}
+						{% if delivery_status.delivery_status_id == order.delivery_status_id %}						
+							{{ delivery_status.name }}
+						{% endif %}
+					{% endfor %}	
+				  </td>
+				 <td class="text-left">{{ order.name|raw }}</td>
+				  <td class="text-left">{{ order.date_added }}</td>
+				  <td class="text-right">{{ order.model }}</td>
+				  <td class="text-left">{{ order.quantity }}</td>
+				  <td class="text-left">{{ order.total }}</td>
+				</tr>
+				{% endfor %}
+				{% else %}
+				<tr>
+				  <td class="text-center" colspan="8">{{ text_no_results }}</td>
+				</tr>
+				{% endif %}
+                  </tbody>
+                
+              </table>
+            </div>
+          </form>
+          <div class="row">
+            <div class="col-sm-6 text-left">{{ pagination }}</div>
+            <div class="col-sm-6 text-right">{{ results }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+$(document).ready(function () {
+    const baseUrl = 'index.php?route=sale/delivery&user_token={{ user_token }}';
+    let timer;
+
+    // ✅ Apply filters and rebuild the URL
+	 function applyFilters() {
+		let url = baseUrl;
+
+		// ✅ Always include the 3 exclude parameters first
+		url += '&exclude_completed=' + ($('#exclude_completed').is(':checked') ? '1' : '0');
+		url += '&exclude_refunded=' + ($('#exclude_refunded').is(':checked') ? '1' : '0');
+		url += '&exclude_credited=' + ($('#exclude_credited').is(':checked') ? '1' : '0');
+
+		// 🔍 Read all filter values
+		const orderId = $('#search-orderid').val();
+		const customer = $('#search-customer').val();
+		const orderStatusExact = $('select[name="filter_order_status"]').val();
+		const orderStatusText = $('input[name="filter_order_status_text"]').val();
+		const products = $('#search-products').val();
+		const productModel = $('#search-productmodel').val();
+		const startDate = $('#filter-start-date').val();
+		const endDate = $('#filter-end-date').val();
+
+		// 🔍 Add filters only if not empty
+		if (orderId) url += '&filter_order_id=' + encodeURIComponent(orderId);
+		if (customer) url += '&filter_customer=' + encodeURIComponent(customer);
+		if (orderStatusExact) url += '&filter_order_status=' + encodeURIComponent(orderStatusExact);
+		if (orderStatusText) url += '&filter_order_status_text=' + encodeURIComponent(orderStatusText);
+		if (products) url += '&filter_products=' + encodeURIComponent(products);
+		if (productModel) url += '&filter_productmodel=' + encodeURIComponent(productModel);
+		if (startDate) url += '&filter_start_date=' + encodeURIComponent(startDate);
+		if (endDate) url += '&filter_end_date=' + encodeURIComponent(endDate);
+
+		// 🔄 Redirect with clean URL
+		window.location.href = url;
+	}
+
+    // ✅ Button click
+    $('#button-filter').on('click', function (e) {
+        e.preventDefault();
+        applyFilters();
+    });
+
+    // ✅ Change exclude checkboxes instantly on click
+    $('#exclude_completed, #exclude_refunded, #exclude_credited').on('change', function () {
+        const url = new URL(window.location.href);
+
+        // Remove old params
+        url.searchParams.delete('exclude_completed');
+        url.searchParams.delete('exclude_refunded');
+        url.searchParams.delete('exclude_credited');
+
+        // Set new ones
+        url.searchParams.set('exclude_completed', $('#exclude_completed').is(':checked') ? '1' : '0');
+        url.searchParams.set('exclude_refunded', $('#exclude_refunded').is(':checked') ? '1' : '0');
+        url.searchParams.set('exclude_credited', $('#exclude_credited').is(':checked') ? '1' : '0');
+
+        window.location.href = url.toString();
+    });
+
+// Date search button
+$('#button-date-search').on('click', function(e) {
+    e.preventDefault();
+    
+    var startDate = $('#filter-start-date').val();
+    var endDate = $('#filter-end-date').val();
+
+    // Check if end date is set but start date is not
+    if (endDate && !startDate) {
+        alert('Please select a start date before searching with an end date.'); // Display a simple pop-up alert
+        return; // Stop the function from applying the filters
+    }
+
+    applyFilters();
+});
+
+    // ✅ Auto-submit typing delay
+    $('#search-orderid, #search-customer, #search-order-status, #search-products, #search-productmodel').on('keyup', function () {
+        clearTimeout(timer);
+        timer = setTimeout(applyFilters, 1000);
+    });
+
+    // ✅ Clear filters button
+     window.clearDateInput = function () {
+        // Clear inputs
+        $('#search-orderid, #search-customer, #search-order-status, #search-products, #search-productmodel, #filter-start-date, #filter-end-date').val('');
+
+        // Always keep the three exclude parameters as 1
+        let url = baseUrl
+            + '&exclude_completed=1'
+            + '&exclude_refunded=1'
+            + '&exclude_credited=1';
+
+        window.location.href = url;
+    };
+
+    // ✅ Autocomplete for product name
+    $('input[name="filter_name"]').autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_name=' + encodeURIComponent(request),
+                dataType: 'json',
+                success: function (json) {
+                    response($.map(json, function (item) {
+                        return { label: item['name'], value: item['product_id'] };
+                    }));
+                }
+            });
+        },
+        select: function (item) {
+            $('input[name="filter_name"]').val(item['label']);
+        }
+    });
+
+    // ✅ Alphabet click handler
+    $(document).on('click', '.alphabet-link', function (e) {
+        e.preventDefault();
+        const letter = $(this).data('letter');
+
+        const params = new URLSearchParams();
+        params.set('filter_name', letter);
+        params.set('exclude_completed', 1);
+        params.set('exclude_refunded', 1);
+        params.set('exclude_credited', 1);
+
+        window.location.href = baseUrl + '&' + params.toString();
+    });
+
+    // ✅ Datepicker setup
+    $('.date').datetimepicker({
+        language: '{{ datepicker }}',
+        pickTime: false
+    });
+});
+</script>
+  <script type="text/javascript">
+$('#button-filter').on('click', function() {
+	url = '';
+
+	var filter_name = $('input[name=\'filter_name\']').val();
+
+	if (filter_name) {
+		url += '&filter_name=' + encodeURIComponent(filter_name);
+	}
+
+	var filter_order_id = $('input[name=\'filter_order_id\']').val();
+
+	if (filter_order_id) {
+		url += '&filter_order_id=' + encodeURIComponent(filter_order_id);
+	}
+	
+	var filter_order_status = $('input[name=\'filter_order_status\']').val();
+
+	if (filter_order_status) {
+		url += '&filter_order_status=' + encodeURIComponent(filter_order_status);
+	}
+	var filter_order_status_text = $('input[name="filter_order_status_text"]').val();
+	if (filter_order_status_text) {
+		url += '&filter_order_status_text=' + encodeURIComponent(filter_order_status_text);
+	}
+	
+	
+
+	location = 'index.php?route=sale/delivery&user_token={{ user_token }}' + url;
+});
+
+    var typingTimer;                // Timer identifier
+    var doneTypingInterval = 1000;  // Time in milliseconds (2 seconds)
+
+    // Function to handle typing timeout
+    function setupTypingTimer() {
+        // On keydown, clear the countdown 
+        $('input[name=\'filter_name\'], input[name=\'filter_order_id\']').on('keydown', function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        });
+        
+        // On change of select, clear the countdown
+       $('select[name="filter_order_status"]').on('change', function () {
+    let value = $(this).val();
+    let base = 'index.php?route=sale/delivery&user_token={{ user_token }}';
+
+    // If user selects "Select a option" (empty)
+    if (value === '') {
+        window.location.href =
+            base +
+            '&exclude_completed=1&exclude_refunded=1&exclude_credited=1';
+        return;
+    }
+
+    // If user selects actual status (Complete, Pending, etc)
+    window.location.href = base + '&filter_order_status=' + encodeURIComponent(value);
+});
+    }
+
+    // Initialize the typing timer setup
+    setupTypingTimer();
+
+    // Function to execute when typing is done
+    function doneTyping() {
+        var url = 'index.php?route=sale/delivery&user_token={{ user_token }}';
+
+        var filter_name = $('input[name=\'filter_name\']').val();
+        if (filter_name) {
+            url += '&filter_name=' + encodeURIComponent(filter_name);
+        }
+
+        var filter_order_id = $('input[name=\'filter_order_id\']').val();
+        if (filter_order_id) {
+            url += '&filter_order_id=' + encodeURIComponent(filter_order_id);
+        }
+
+        var filter_order_status = $('select[name=\'filter_order_status\']').val();
+        if (filter_order_status) {
+            url += '&filter_order_status=' + encodeURIComponent(filter_order_status);
+        }
+
+        // Redirect to the constructed URL
+        window.location.href = url;
+    }
+
+    // Set initial input values based on URL parameters
+    var urlParams = new URLSearchParams(window.location.search);
+    var initialFilterName = urlParams.get('filter_name');
+    if (initialFilterName) {
+        $('input[name=\'filter_name\']').val(initialFilterName);
+    }
+
+    var initialFilterOrderId = urlParams.get('filter_order_id');
+    if (initialFilterOrderId) {
+        $('input[name=\'filter_order_id\']').val(initialFilterOrderId);
+    }
+
+    var initialFilterOrderStatus = urlParams.get('filter_order_status');
+    if (initialFilterOrderStatus) {
+        $('select[name=\'filter_order_status\']').val(initialFilterOrderStatus);
+    }
+
+</script> 
+<style>
+    .alphabet-filter {
+    display: flex;
+    justify-content: space-evenly;
+    font-size: 20px;
+    margin: 10px;
+}
+.panel-body input[type="checkbox"] {
+    margin-right: 5px;
+}
+</style>
+{{ footer }} 

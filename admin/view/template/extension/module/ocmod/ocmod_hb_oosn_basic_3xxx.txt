@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Product Back-in-Stock Alert (Core) [Default] [3xxx]</name>
+    <version>{huntbee_version}</version>
+    <author>HuntBee OpenCart Services</author>
+    <link>https://www.huntbee.com</link>
+	<code>huntbee_stock_notify_ocmod</code>
+	
+	<file path="catalog/controller/checkout/cart.php">
+		<operation>
+			<search><![CDATA[if (isset($this->request->post['recurring_id'])) {]]></search>
+			<add position="before"><![CDATA[
+			//HUNTBEE CODE ADDED FOR OUT OF STOCK FORM POPUP #START_OOSN
+			if ($this->config->get('module_hb_oosn_status') && file_exists(DIR_APPLICATION . 'model/extension/module/hb_oosn.php')) {
+		    	$this->load->model('extension/module/hb_oosn');
+			    if (!$json){
+			        $json_oosn = $this->model_extension_module_hb_oosn->product_notify_validation($product_id, $quantity, $option, $product_options);
+			        if ($json_oosn) {
+			            $json = $json_oosn;
+			        }
+			    }
+			}
+			//#END_OOSN
+		]]></add>
+		</operation>
+	</file>
+	
+	<file path="catalog/controller/common/footer.php">	
+		<operation>
+			<search><![CDATA[$data['newsletter']]]></search>
+			<add position="after"><![CDATA[
+				$data['notifyform'] = $this->load->controller('extension/module/hb_oosn/notify_popup');	
+			]]></add>
+		</operation>
+	</file>	
+	
+	<file path="catalog/view/theme/*/template/common/footer.twig">
+		<operation>
+			<search><![CDATA[</body>]]></search>
+			<add position="before"><![CDATA[ {{ notifyform }} ]]></add>
+		</operation>
+	</file>
+	
+	<file path="catalog/controller/product/product.php">	
+		<operation>
+			<search><![CDATA[if (!$option_value['subtract'] || ($option_value['quantity'] > 0)) {]]></search>
+			<add position="replace"><![CDATA[if (!$option_value['subtract'] || $option_value['subtract'] || ($option_value['quantity'] > 0)) {]]></add>
+		</operation>
+	</file>	
+	
+	
+	<file path="catalog/view/theme/*/template/product/product.twig">
+		<operation>
+			<search><![CDATA[$('.text-danger').parent().addClass('has-error');]]></search>
+			<add position="after" offset="1"><![CDATA[
+			if (json['hberror']) {
+				if (json['hberror']['selectedoption']) {
+					$('#oosn_info_text').html('');
+					$('#oosn_info_text').html(json['hberror']['val']);
+					$('#opt_info').html(json['hberror']['selectedoption']);
+					notifypop(json['hberror']['pid']);
+				}
+				if (json['hberror']['oosn']) {
+					notifypop(json['hberror']['oosn']);
+				}
+			}
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+
+	<file path="admin/controller/common/column_left.php">
+		<operation>
+            <search><![CDATA[if ($this->user->hasPermission('access', 'marketplace/modification')) {]]></search>
+            <add position="before"><![CDATA[
+			if ($this->user->hasPermission('access', 'extension/module/hb_oosn')) {
+			
+				if ($this->config->get('module_hb_oosn_status') && file_exists(DIR_APPLICATION . 'model/extension/module/hb_oosn.php')) {
+					$this->load->model('extension/module/hb_oosn');
+					$oosn_count = $this->model_extension_module_hb_oosn->getTotalPending();
+				}else{
+					$oosn_count = 0;
+				}
+			
+				$marketplace[] = array(
+					'name'	   => sprintf($this->language->get('text_oosn'), $oosn_count),
+					'href'     => $this->url->link('extension/module/hb_oosn', 'user_token=' . $this->session->data['user_token'], true),
+					'children' => array()		
+				);
+			}
+			]]></add>
+        </operation>
+    </file>		
+	
+	<file path="admin/language/*/common/column_left.php">
+        <operation>
+            <search><![CDATA[$_['text_modification']]]></search>
+            <add position="before"><![CDATA[$_['text_oosn']                   = 'Product Stock Alert&nbsp;<span class="label label-danger">%d</span>';]]></add>
+        </operation>
+    </file>
+    
+    <file path="admin/controller/common/header.php">
+		<operation>
+			<search><![CDATA[$data['logout']]]></search>
+			<add position="before"><![CDATA[
+			
+			if ($this->config->get('module_hb_oosn_status') && file_exists(DIR_APPLICATION . 'model/extension/module/hb_oosn.php')) {
+				$this->load->model('extension/module/hb_oosn');
+				$data['oosn_count'] = $this->model_extension_module_hb_oosn->getTotalPending();
+			}else{
+				$data['oosn_count'] = 0;
+			}
+			
+			$data['oosn_link'] = $this->url->link('extension/module/hb_oosn', 'user_token=' . $this->session->data['user_token'].'&store_id=0', true);
+			]]></add>
+		</operation>
+	</file>	
+	
+	 <file path="admin/view/template/common/header.twig">
+		<operation>
+			<search><![CDATA[<ul class="nav navbar-nav navbar-right">]]></search>
+			<add position="after"><![CDATA[
+			<li><a href="{{ oosn_link }}"><i class="fa fa-bell fa-lg" style="color: #009688;"></i>&nbsp;<span class="label label-danger">{{ oosn_count }}</span></a></li>
+			]]></add>
+		</operation>
+	</file>	
+
+</modification>

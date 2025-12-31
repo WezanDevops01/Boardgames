@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Hide Header Icons</name>
+    <code>hide_header_icons</code>
+    <version>1.1</version>
+    <author>OpenCart Ltd</author>
+    <link>http://www.opencart.com</link>
+    
+    <file path="admin/view/template/common/header.twig">
+        <operation>
+            <search><![CDATA[<ul class="nav navbar-nav navbar-right">]]></search>
+            <add position="before"><![CDATA[
+			<style>
+			ul.nav.navbar-nav.navbar-right li.header_bell_icon,
+			ul.nav.navbar-nav.navbar-right li.header_cart_icon {
+				display: none;
+			}
+			</style>
+            ]]></add>
+        </operation>
+    </file>
+</modification>

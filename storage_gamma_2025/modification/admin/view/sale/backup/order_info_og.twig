@@ -1,0 +1,1901 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      {# <div class="pull-right"> <a href="#" id="customerRequestButton" data-toggle="tooltip" title="Customer Request" class="btn btn-primary" style="background-color: {% if linked_order_ids %}yellow{% endif %};color: {% if linked_order_ids %}black{% endif %};border-color: {% if linked_order_ids %}yellow{% endif %};"><i class="fa fa-User"></i>Create Request</a>
+                <a href="{{ download_pdf }}" class="btn btn-success" target="_blank"><i class="fa fa-file-pdf-o"></i>&nbsp;PDF Invoice</a>
+                <a href="{{ download_packaging }}" class="btn btn-warning" target="_blank" style="background-color:#f56b6b;"><i class="fa fa-location-arrow"></i>&nbsp;Packaging Slip</a>
+                <a href="{{ invoice }}" target="_blank" data-toggle="tooltip" title="{{ button_invoice_print }}" class="btn btn-info"><i class="fa fa-print"></i></a>
+			 <a href="{{ shipping }}" target="_blank" data-toggle="tooltip" title="{{ button_shipping_print }}" class="btn btn-info"><i class="fa fa-truck"></i></a> <a href="{{ edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a> <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>#}
+      <div class="pull-right"><a href="#" id="customerRequestButton" data-toggle="tooltip" title="Customer Request" class="btn btn-primary" style="{% if linked_order_ids %}background-color: yellow; color: black; border-color: yellow;{% endif %}{% if highlight_payment_address %}background-color: #f97a00; color: #fff; border-color: #ffa500;{% endif %}"><i class="fa fa-user"></i> Create Request</a>
+                <a href="{{ download_pdf }}" class="btn btn-success" target="_blank"><i class="fa fa-file-pdf-o"></i>&nbsp;PDF Invoice</a>
+                <a href="{{ download_packaging }}" class="btn btn-warning" target="_blank" style="background-color:#f56b6b;"><i class="fa fa-location-arrow"></i>&nbsp;Packaging Slip</a>
+                <a href="{{ invoice }}" target="_blank" data-toggle="tooltip" title="{{ button_invoice_print }}" class="btn btn-info"><i class="fa fa-print"></i></a>
+			 <a href="{{ shipping }}" target="_blank" data-toggle="tooltip" title="{{ button_shipping_print }}" class="btn btn-info"><i class="fa fa-truck"></i></a> <a href="{{ edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a> <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+			
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+
+                {% if success is defined and success %}
+                <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+                {% endif %}
+                
+    <div class="row">
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-shopping-cart"></i> {{ text_order_detail }}</h3>
+          </div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td style="width: 1%;"><button data-toggle="tooltip" title="{{ text_store }}" class="btn btn-info btn-xs"><i class="fa fa-shopping-cart fa-fw"></i></button></td>
+                <td><a href="{{ store_url }}" target="_blank">{{ store_name }}</a></td>
+              </tr>
+              <tr>
+                <td><button data-toggle="tooltip" title="{{ text_date_added }}" class="btn btn-info btn-xs"><i class="fa fa-calendar fa-fw"></i></button></td>
+                <td>{{ date_added }}</td>
+              </tr>
+              <tr>
+                <td><button data-toggle="tooltip" title="{{ text_payment_method }}" class="btn btn-info btn-xs"><i class="fa fa-credit-card fa-fw"></i></button></td>
+                <td>{{ payment_method }}</td>
+              </tr>
+
+{% if prm_access_permission %}
+          <tr>
+            <td><label class="control-label" style="cursor:pointer; font-weight:normal;"><span data-toggle="tooltip" title="{{ help_edit_cost }}">{{ entry_payment_cost }}</span></label></td>
+            <td>
+			{% if modify_permission %}
+				<span class="ajax-edit2" id="payment_cost-{{ order_id }}" value="{{ order_id }}">
+				<input type="text" value="{{ payment_cost }}"><br> 
+    			<a style="cursor:pointer;" onclick="save_payment_cost({{ order_id }})">{{ text_save }}</a>&nbsp|&nbsp<a style="cursor: pointer;" onclick="close_payment_cost({{ order_id }})"; return false;>{{ text_close }}</a>
+				</span>   
+			{% endif %}	      
+            <span style="color:#F00;">{{ payment_cost }}</span>
+            </td>
+          </tr>  
+{% endif %}	
+            
+              {% if shipping_method %}
+                <tr>
+                  <td><button data-toggle="tooltip" title="{{ text_shipping_method }}" class="btn btn-info btn-xs"><i class="fa fa-truck fa-fw"></i></button></td>
+                  <td>{{ shipping_method }}</td>
+                </tr>
+              {% endif %}
+
+                {% if shipping_canadapost_status is defined and shipping_canadapost_status %}
+                <tr>
+                    <td><button id = "shipment" data-toggle="tooltip" title="{{ text_shipment }}" class="btn btn-info btn-xs"><i class="fa fa-paper-plane"></i></button></td>
+                    <td>{{ text_shipment }}</td>
+            </tr>
+                {% endif %}
+              {# {% if prm_access_permission %}				
+          <tr>
+            <td><label class="control-label" style="cursor:pointer; font-weight:normal;"><span data-toggle="tooltip" title="{{ help_edit_cost }}">{{ entry_shipping_cost }}</span></label></td>
+            <td>
+			{% if modify_permission %}
+				<span class="ajax-edit2" id="shipping_cost-{{ order_id }}" value="{{ order_id }}">
+				<input type="text" value="{{ shipping_cost }}"><br> 
+    			<a style="cursor:pointer;" onclick="save_shipping_cost({{ order_id }})">{{ text_save }}</a>&nbsp|&nbsp<a style="cursor: pointer;" onclick="close_shipping_cost({{ order_id }})"; return false;>{{ text_close }}</a>
+				</span>     
+			{% endif %}	      
+            <span style="color:#F00;">{{ shipping_cost }}</span>
+            </td>
+          </tr>    
+{% endif %}	 #}	
+		{#	<tr>
+			  <td style="width: 30%;"><b>Weight (kg):</b></td>
+			  <td>{{ global_weight_kg }}</td>
+			</tr>
+            <tr>
+			  <td style="width: 30%;"><b>Size (cm):</b></td>
+			  <td>X: {{ global_size_l }} &nbsp; 
+				  Y: {{ global_size_w }} &nbsp; 
+				  Z: {{ global_size_h }}
+			  </td>
+			</tr> #}
+			<tr>
+			<td colspan="2" style="width: 100%;">
+				<div class="clearfix">
+					<b style="float:left;">Shipping Order Details</b>
+					<button type="button" class="btn btn-primary btn-sm" id="saveInlineSizeWeight" style="float:right;">
+						Save
+					</button>
+				</div>
+			</td>
+		</tr>
+
+			<tr>
+				<td style="width: 30%;"><b>Weight (kg):</b></td>
+				<td>
+					<input type="text" 
+						   name="global_weight_kg"
+						   id="global_weight_kg"
+						   value="{{ global_weight_kg }}"
+						   class="form-control input-sm"
+						   style="width:67px; display:inline-block;">
+				</td>
+			</tr>
+			<tr>
+				<td><b>Size (cm):</b></td>
+				<td>
+					<div class="row">
+						<div class="col-xs-4">
+							<label>Length(cm)</label>
+							<input type="text" name="global_size_l"
+								   id="global_size_l"
+								   value="{{ global_size_l }}"
+								   class="form-control input-sm">
+						</div>
+
+						<div class="col-xs-4">
+							<label>Width(cm)</label>
+							<input type="text" name="global_size_w"
+								   id="global_size_w"
+								   value="{{ global_size_w }}"
+								   class="form-control input-sm">
+						</div>
+
+						<div class="col-xs-4">
+							<label>Height(cm)</label>
+							<input type="text" name="global_size_h"
+								   id="global_size_h"
+								   value="{{ global_size_h }}"
+								   class="form-control input-sm">
+						</div>
+					</div>
+				</td>
+			</tr>
+			{% if prm_access_permission %}
+                <tr>
+                    <td>
+                        <label class="control-label" style="cursor:pointer;">
+                            <span data-toggle="tooltip" title="{{ help_edit_cost }}">
+                                {{ entry_shipping_cost }}
+                            </span>
+                        </label>
+                    </td>
+                    <td>
+                
+                    {% if modify_permission %}
+                    	<span class="ajax-edit2 shipping" id="shipping_cost-{{ order_id }}" value="{{ order_id }}" style="display: block;">
+                       <input type="text" value="{{ shipping_cost }}">
+
+                    {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+	  <script>
+	// ----------------------------------------------
+// Save Size & Weight (Inline, No Popup)
+// ----------------------------------------------
+$('#saveInlineSizeWeight').on('click', function () {
+
+    var order_id = {{ order_id }};
+    var weight = $('#global_weight_kg').val();
+    var l = $('#global_size_l').val();
+    var w = $('#global_size_w').val();
+    var h = $('#global_size_h').val();
+    
+    save_shipping_cost(order_id);
+    
+    $.ajax({
+        url: 'index.php?route=sale/order/saveGlobalSizeWeight&user_token={{ user_token }}',
+        type: 'post',
+        data: {
+            order_id: order_id,
+            weight_kg: weight,
+            size_l: l,
+            size_w: w,
+            size_h: h
+        },
+        dataType: 'json',
+        success: function (json) {
+            if (json.success) {
+                location.reload(); // Refresh page after successful save
+            }
+        }
+    });
+});
+	</script>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-user"></i> {{ text_customer_detail }}</h3>
+          </div>
+          <table class="table">
+            <tr>
+              <td style="width: 1%;"><button data-toggle="tooltip" title="{{ text_customer }}" class="btn btn-info btn-xs"><i class="fa fa-user fa-fw"></i></button></td>
+              <td>{% if customer %} <a href="{{ customer }}" target="_blank">{{ firstname }} {{ lastname }}</a> {% else %}
+                  {{ firstname }} {{ lastname }}
+                {% endif %}</td>
+            </tr>
+            <tr>
+              <td><button data-toggle="tooltip" title="{{ text_customer_group }}" class="btn btn-info btn-xs"><i class="fa fa-group fa-fw"></i></button></td>
+              <td>{{ customer_group }}</td>
+            </tr>
+            <tr>
+              <td>
+                <button data-toggle="tooltip" title="{{ text_email }}" class="btn btn-info btn-xs">
+                  <i class="fa fa-envelope-o fa-fw"></i>
+                </button>
+              </td>
+              <td>
+                 <div class="email_container">
+                <a href="mailto:{{ email }}">{{ email }}</a>
+               <button id="copyButton" class="btn btn-info btn-xs ml-2" onclick="copyToClipboard('{{ email }}', 'copyButton')" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">
+                  Copy
+                </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <button data-toggle="tooltip" title="{{ text_telephone }}" class="btn btn-info btn-xs">
+                  <i class="fa fa-phone fa-fw"></i>
+                </button>
+              </td>
+              <td>
+                 <div class="Phone_container">
+                <a href="tel:{{ telephone }}">{{ telephone }}</a>
+               <button id="copyPhoneButton" class="btn btn-info btn-xs ml-2" onclick="copyToClipboard('{{ telephone }}', 'copyPhoneButton')" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">
+                  Copy
+                </button>
+                 </div>
+              </td>
+            </tr>
+            <tr>
+                <td>
+                    <button data-toggle="tooltip" title="{{ text_message }}" class="btn btn-info btn-xs">
+                        <i class="fa fa-comment fa-fw"></i>
+                    </button>
+                </td>
+                  <td>
+                 <div class="sms_container">
+                <a href="sms:{{ telephone }}?body=Thank%20you%20for%20purchasing%20our%20product%20from%20boardgamesnmore%20site" class="ml-2">{{ telephone }}</a>
+               <button id="copysmsButton" class="btn btn-info btn-xs ml-2" onclick="copyToClipboard('{{ telephone }}', 'copysmsButton')" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">
+                  Copy
+                </button>
+                 </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cog"></i> {{ text_option }}</h3>
+          </div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>{{ text_invoice }}</td>
+                <td id="invoice" class="text-right">{{ invoice_no }}</td>
+                <td style="width: 1%;" class="text-center">{% if not invoice_no %}
+                    <button id="button-invoice" data-loading-text="{{ text_loading }}" data-toggle="tooltip" title="{{ button_generate }}" class="btn btn-success btn-xs"><i class="fa fa-cog"></i></button>
+                  {% else %}
+                    <button disabled="disabled" class="btn btn-success btn-xs"><i class="fa fa-refresh"></i></button>
+                  {% endif %}</td>
+              </tr>
+              <tr>
+                <td>{{ text_reward }}</td>
+                <td class="text-right">{{ reward }}</td>
+                <td class="text-center">{% if customer and reward %}
+                    {% if not reward_total %}
+                      <button id="button-reward-add" data-loading-text="{{ text_loading }}" data-toggle="tooltip" title="{{ button_reward_add }}" class="btn btn-success btn-xs"><i class="fa fa-plus-circle"></i></button>
+                    {% else %}
+                      <button id="button-reward-remove" data-loading-text="{{ text_loading }}" data-toggle="tooltip" title="{{ button_reward_remove }}" class="btn btn-danger btn-xs"><i class="fa fa-minus-circle"></i></button>
+                    {% endif %}
+                  {% else %}
+                    <button disabled="disabled" class="btn btn-success btn-xs"><i class="fa fa-plus-circle"></i></button>
+                  {% endif %}</td>
+              </tr>
+              <tr>
+                <td>{{ text_affiliate }}
+                  {% if affiliate %}
+                    (<a href="{{ affiliate }}">{{ affiliate_firstname }} {{ affiliate_lastname }}</a>)
+                  {% endif %}</td>
+                <td class="text-right">{{ commission }}</td>
+                <td class="text-center">{% if affiliate %}
+                    {% if not commission_total %}
+                      <button id="button-commission-add" data-loading-text="{{ text_loading }}" data-toggle="tooltip" title="{{ button_commission_add }}" class="btn btn-success btn-xs"><i class="fa fa-plus-circle"></i></button>
+                    {% else %}
+                      <button id="button-commission-remove" data-loading-text="{{ text_loading }}" data-toggle="tooltip" title="{{ button_commission_remove }}" class="btn btn-danger btn-xs"><i class="fa fa-minus-circle"></i></button>
+                    {% endif %}
+                  {% else %}
+                    <button disabled="disabled" class="btn btn-success btn-xs"><i class="fa fa-plus-circle"></i></button>
+                  {% endif %}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+	  
+    </div>
+    <div id="message-container"></div>
+     <div id="direct-order-link-block"></div>
+    <div class="panel panel-default">
+   	<div class="panel-heading" style="background-color: {% if linked_order_ids %}yellow{% else %}transparent{% endif %};">
+		<div class="col-md-4 col-12">
+			<h3 class="panel-title" style="text-align: left;"><i class="fa fa-info-circle"></i> {{ text_order }}</h3>
+		</div>
+		<div class="col-md-4 col-12 d-flex justify-content-center align-items-center">
+			<p class="panel-title">
+				{% if linked_order_ids %}
+					Linked Order IDs: 
+					{% for linked_id in linked_order_ids %}
+						<a href="index.php?route=sale/order/info&user_token={{ user_token }}&order_id={{ linked_id }}">{{ linked_id }}</a>{% if not loop.last %}, {% endif %}
+					{% endfor %}
+				{% else %}
+					No linked orders
+				{% endif %}
+			</p>
+		</div>
+		 <div class="col-md-4 col-12 button-container">
+			<button type="button" class="btn btn-danger remove_order_id" data-toggle="modal" data-target="#RemoveModal">Remove Linked orders</button>
+			<button type="button" class="btn btn-primary add_order_id" data-toggle="modal" data-target="#exampleModal">Add Linked orders</button>
+		</div>
+	</div>
+
+	<div class="modal fade" id="RemoveModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Removed Linked Order Id</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="orderForm">
+						<div class="form-group">
+							<label for="RemoveInputField">Order ID</label>
+							<input type="text" class="form-control" id="RemoveInputField" placeholder="Enter order ID(s), separated by commas">
+						</div>
+						<button type="button" class="btn btn-primary" id="submitRemoveOrder">Submit</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Linked Order Id</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="orderForm">
+						<div class="form-group">
+							<label for="inputField">Order ID</label>
+							<input type="text" class="form-control" id="inputField" value="" placeholder="Enter order ID(s), separated by commas">
+						</div>
+						<button type="button" class="btn btn-primary" id="submitOrderForm">Submit</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+      <div class="panel-body">
+
+<style type="text/css">
+.ajax-edit {
+   display: none;
+   float: right;
+   margin-right: 5px;
+}
+.ajax-edit input {
+  width: 100px;
+  height: 30px;
+  padding: 6px 6px;
+  font-size: 12px;
+  text-align: right;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #ffd7d7;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+       -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+          transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.ajax-edit:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+}
+.ajax-edit +span {
+   cursor: pointer;
+}
+
+.ajax-edit2 {
+   display: none;
+   float: left;
+   margin-right: 5px;
+}
+.ajax-edit2 input {
+  width: 100px;
+  height: 30px;
+  padding: 6px 6px;
+  font-size: 12px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #ffd7d7;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+       -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+          transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.ajax-edit2:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+}
+.ajax-edit2 +span {
+   cursor: pointer;
+}
+button.btn.btn-primary.btn-xs.global {
+    padding: 8px 13px;
+    font-size: 13px;
+    border-radius: 3px;
+}
+.ajax-edit2.shipping input {
+    background-color: #ffffff;
+}
+</style>
+            
+           <script type="text/javascript">
+$(document).ready(function() {
+  $('#submitOrderForm').on('click', function() {
+    var linkedOrderIds = $('#inputField').val();
+    console.log('Sending data:', linkedOrderIds);
+    $('#exampleModal').modal('hide');
+    $.ajax({
+      url: 'index.php?route=sale/order/info&user_token={{ user_token }}&order_id={{ order_id }}',
+      type: 'POST',
+      data: {
+        linked_order_ids: linkedOrderIds
+      },
+      dataType: 'json',
+      success: function(response) {
+        if (response.success) {
+          console.log('Linked orders added successfully');
+          $('#inputField').val('');
+          location.reload();
+          showMessage('Linked orders added successfully', 'success');
+        } else {
+          console.log('Error adding linked orders');
+          location.reload();
+          showMessage(response.message, 'danger');
+        }
+      },
+      error: function(xhr, status, error) {
+       // console.log('AJAX Error:', status, error);
+        showMessage('An error occurred while processing your request.', 'danger');
+      }
+    });
+  });
+  
+ $('#submitRemoveOrder').on('click', function() {
+    var linkedOrderIds = $('#RemoveInputField').val();
+    console.log('Sending data:', linkedOrderIds);
+    $('#RemoveModal').modal('hide');
+    $.ajax({
+        url: 'index.php?route=sale/order/deleteLinkOrder&user_token={{ user_token }}&order_id={{ order_id }}',
+        type: 'POST',
+        data: {
+            linked_order_ids: linkedOrderIds,
+            order_id: {{ order_id }}
+        },
+        dataType: 'json',
+        success: function(response) {
+            console.log('Response:', response);
+            if (response.success) {
+                $('#RemoveInputField').val('');
+                location.reload();
+                showMessage(response.message, 'success');
+            } else {
+                showMessage(response.message || 'Unknown error occurred', 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.log('AJAX Error:', status, error);
+            console.log('Response Text:', xhr.responseText);
+            showMessage('An error occurred while processing your request. Please check the console for details.', 'danger');
+        }
+    });
+});
+
+
+  function showMessage(message, type) {
+    var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    var html = '<div class="alert ' + alertClass + ' alert-dismissible" role="alert">' +
+               '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+               message +
+               '</div>';
+    $('#message-container').html(html);
+  }
+});
+</script>
+
+<style type="text/css">
+
+.panel-heading {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+a#customerRequestButton {
+    margin: 0px 5px;
+}
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+@media (max-width:768px){
+.button-container {
+ align-items: stretch;
+ padding: 0px;
+}
+.panel-heading {   
+    row-gap: 10px;
+}
+
+}
+label.weight-label.text-left {
+    float: left;
+}
+label.size-label.text-left {
+    float: left;
+    width: 100%;
+}
+</style>
+
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <td style="width: 50%;" class="text-left">{{ text_payment_address }}</td>
+              {% if shipping_method %}
+                <td style="width: 50%;" class="text-left">{{ text_shipping_address }}</td>
+              {% endif %} </tr>
+          </thead>
+          <tbody>
+            <tr>
+             <td class="text-left" {% if highlight_payment_address %} style="background-color: #f97a00;color: #fff;" {% endif %}>
+                   {{ payment_address }}
+               </td>
+              {% if shipping_method %}
+                    <td class="text-left" style="background-color: {% if linked_order_ids %}yellow{% else %}transparent{% endif %};">
+                          <span class="copy_shipping_address"> 
+                            <button id="copyButton" class="btn btn-info btn-xs ml-2" onclick="copyToClipboard('{{ shipping_customer_name }}', 'copyButton')" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">
+                              Copy Name
+                            </button>
+                            <button id="copyButton" class="btn btn-info btn-xs ml-2" onclick="copyToClipboard('{{ shipping_customer_address }}', 'copyButton')" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">
+                              Copy Address
+                            </button>
+                            <button id="copyButton" class="btn btn-info btn-xs ml-2" onclick="copyToClipboard('{{ shipping_customer_city }}', 'copyButton')" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">
+                              Copy City
+                            </button>
+                            <button id="copyButton" class="btn btn-info btn-xs ml-2" onclick="copyToClipboard('{{ shipping_customer_post_code }}', 'copyButton')" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">
+                              Copy Post code
+                            </button>
+                        </span></br>
+                        <span id="shippingAddress">
+                            <a id="mapLink" href="" target="_blank">{{ shipping_address }}
+                        </span>
+                    </td>
+              {% endif %} </tr>
+          </tbody>
+        </table>
+
+			<form action="{{ edit_delivery_list }}" method="post" enctype="multipart/form-data" id="form-delivery-status" class="form-product-search">
+		
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+
+                {% if shipping_canadapost_status is defined and shipping_canadapost_status %}
+                    <td style="width: 1px;" class="text-center"><input type="checkbox" class = "selection"  onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+                {% endif %}
+                
+              <td class="text-left">{{ column_product }}</td>
+
+			<td class="text-left">{{ column_delivery_status }}</td>
+			<td class="text-left">{{ column_inventory_status }}</td>
+		
+             <!-- <td class="text-left">{{ column_model }}</td> -->
+              <td class="text-right">{{ column_quantity }}</td>
+              <td class="text-right">{{ column_price }}</td>
+
+{% if prm_access_permission %}					
+                <td class="text-right" style="padding-bottom:3px;"><label class="control-label" style="cursor:pointer;"><span data-toggle="tooltip" title="{{ help_edit_cost }}">{{ column_cost }}</span></label></td>
+{% endif %}	
+            
+              <td class="text-right">{{ column_total }}</td>
+
+			<td class="text-right"></td>
+		
+            </tr>
+          </thead>
+          <tbody>
+
+            {% for product in products %}
+              <tr>
+                <td class="text-left"><a href="{{ product.href }}">
+                     {% if product.stockstatus in [8, 13, 15] %}
+				{{ product.name }} {{ text_preorder }}
+				{% else %}
+				{{ product.name }}
+				{% endif %}
+ <!-- store pickup code starts here -->{% if product.pickup_address %}<br /><small style="color:blue">{{ pickup_address_text }}:</small><br /><small>{{ product.pickup_point_name }}</small>{% for key, value in product.pickup_address %}<br /><small>{{ value }}</small>{% endfor %}{% endif %}<!-- store pickup code ends here -->
+                </a> {% for option in product.option %}
+                    <br/>
+                    {% if option.type != 'file' %}
+                      &nbsp;
+                      <small> - {{ option.name }}: {{ option.value }}</small> {% else %}
+                      &nbsp;
+                      <small> - {{ option.name }}: <a href="{{ option.href }}">{{ option.value }}</a></small> {% endif %}
+                  {% endfor %}</td>
+
+			<td class="text-left">
+				<select name="{{ product.order_product_id }}_status_id" id="{{ product.order_product_id }}_status_id" onchange='document.getElementById("{{ product.order_product_id }}_select").setAttribute("checked","checked");' class="form-control">
+				{% for delivery_status in delivery_statuses %}
+				  {% if delivery_status.delivery_status_id == product.delivery_status_id %}
+					<option value="{{ delivery_status.delivery_status_id }}" selected="selected">{{ delivery_status.name }}</option>
+				  {% else %}
+					<option value="{{ delivery_status.delivery_status_id }}">{{ delivery_status.name }}</option>
+				  {% endif %}
+				{% endfor %}
+				</select>
+				<input type="hidden" name="{{ product.order_product_id }}_product_id" value="{{ product.product_id }}" />
+			</td>
+			
+			<td class="text-left">
+				{% for stock_status in stock_statuses %}
+				  {% if stock_status.stock_status_id == product.stockstatus %}
+					  {{stock_status.name}}
+				  {% endif %}
+				{% endfor %}					
+			</td>
+		
+             <!--   <td class="text-left">{{ product.model }}</td> -->
+                <td class="text-right">
+
+    <!-- Button trigger modal -->
+	<div class="pull-left">
+<button type="button"
+        class="btn btn-danger btn-xs"
+        data-toggle="modal"
+        data-target="#sizeWeightModal_{{ product.order_product_id }}"
+        data-order-product-id="{{ product.order_product_id }}">
+    <i class="fa fa-balance-scale"></i>
+</button>
+</div>
+
+<!-- Modal (Bootstrap 3) -->
+<div class="modal fade" id="sizeWeightModal_{{ product.order_product_id }}" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+        <!-- Left aligned title -->
+        <h4 class="modal-title size-weight-title text-left">Set Size & Weight</h4>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="form-group">
+          <!-- Left aligned weight label -->
+          <label class="weight-label text-left">Weight (kg):</label>
+          <input type="text"
+       class="form-control"
+       name="weight_kg_{{ product.order_product_id }}"
+       value="{{ product.weight_kg }}"
+       placeholder="Enter weight">
+        </div>
+
+        <div class="form-group">
+          <!-- Left aligned size label -->
+          <label class="size-label text-left">Size (cm):</label>
+			<div class="row">
+
+				<div class="col-xs-4">
+					<div class="input-group">
+						<span class="input-group-addon"><b>L:</b></span>
+						<input type="text"
+							   class="form-control"
+							   name="size_l_{{ product.order_product_id }}"
+							   value="{{ product.size_l }}"
+							   placeholder="L">
+					</div>
+				</div>
+
+				<div class="col-xs-4">
+					<div class="input-group">
+						<span class="input-group-addon"><b>W:</b></span>
+						<input type="text"
+							   class="form-control"
+							   name="size_w_{{ product.order_product_id }}"
+							   value="{{ product.size_w }}"
+							   placeholder="W">
+					</div>
+				</div>
+
+				<div class="col-xs-4">
+					<div class="input-group">
+						<span class="input-group-addon"><b>H:</b></span>
+						<input type="text"
+							   class="form-control"
+							   name="size_h_{{ product.order_product_id }}"
+							   value="{{ product.size_h }}"
+							   placeholder="H">
+					</div>
+				</div>
+
+			</div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+        <button type="button"
+                class="btn btn-primary save-size-weight"
+                data-order-product-id="{{ product.order_product_id }}">
+          Save
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    <div class="pull-right">
+        {{ product.quantity }}
+    </div>
+
+</td>
+                <td class="text-right">{{ product.price }}</td>
+	
+{% if prm_access_permission %}				
+				<td class="text-right">
+				{% if modify_permission %}
+					<span class="ajax-edit" id="cost-{{ product.order_product_id }}" value="{{ product.order_product_id }}">
+					{% for cost in product.cost %}
+					<input type="text" value="{{ cost.cost }}"><br>
+					{% endfor %}
+    				<a style="cursor:pointer;" onclick="save_cost({{ product.order_product_id }})">{{ text_save }}</a>&nbsp|&nbsp<a style="cursor: pointer;" onclick="close_cost({{ product.order_product_id }})"; return false;>{{ text_close }}</a>
+					</span>
+				{% endif %}	
+				{% for cost in product.cost %}
+				<span style="color:#F00;">{{ cost.cost }}</span>
+				 {% endfor %}
+				</td>
+{% endif %}				
+            
+                <td class="text-right">{{ product.total }}</td>
+
+			<td style="width: 1px;" class="text-center"><input type="checkbox" name="selected[]" id="{{ product.order_product_id }}_select" value="{{ product.order_product_id }}" /></td>
+		
+              </tr>
+            {% endfor %}
+            {% for voucher in vouchers %}
+              <tr>
+                <td class="text-left"><a href="{{ voucher.href }}">{{ voucher.description }}</a></td>
+                <td class="text-left"></td>
+                <td class="text-right">1</td>
+                <td class="text-right">{{ voucher.amount }}</td>
+                <td class="text-right">{{ voucher.amount }}</td>
+              </tr>
+            {% endfor %}
+
+			<tr>
+				<td colspan="8" style="text-align:right">
+					<button type="submit" form="form-delivery-status" id="update-btn" formaction="{{ edit_delivery_list }}" data-toggle="tooltip" title="{{ button_edit_list }}" class="btn btn-primary">Update Delivery Status</button>
+				</td>
+			</tr>
+		
+            {% for total in totals %}
+              <tr>
+                
+{% if prm_access_permission %}				
+              <td colspan="7" class="text-right">{{ total.title }}</td>
+{% else %}
+              
+			<td colspan="7" class="text-right">{{ total.title }}</td>
+		
+{% endif %}				  
+            
+                <td class="text-right">{{ total.text }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+
+        </table>
+	
+{% if prm_access_permission %}
+		<table class="table table-bordered">
+          <tbody>
+            <tr>
+              <td width="20%" class="text-left"><label class="control-label" style="cursor:pointer; font-weight:normal;"><span data-toggle="tooltip" title="{{ help_edit_cost }}">{{ entry_extra_cost }}</span></label></td>
+              <td width="80%" class="text-left">
+			{% if modify_permission %}
+				<span class="ajax-edit2" id="extra_cost-{{ order_id }}" value="{{ order_id }}">
+				<input type="text" value="{{ extra_cost }}"><br>
+    			<a style="cursor:pointer;" onclick="save_extra_cost({{ order_id }})">{{ text_save }}</a>&nbsp|&nbsp<a style="cursor: pointer;" onclick="close_extra_cost({{ order_id }})"; return false;>{{ text_close }}</a>
+				</span>     
+			{% endif %}	     
+            <span style="color:#F00;">{{ extra_cost }}</span>			  
+			  </td>
+            </tr>
+          </tbody>
+		</table>
+{% endif %}
+            
+
+			{% for delivery_status in delivery_statuses %}
+				<input type="hidden" name="delivery_status_name_{{ delivery_status.delivery_status_id }}"  value="{{ delivery_status.name }}" >
+			{% endfor %}
+			<input type="hidden" name="order_id" class="order_id" value="{{ order_id }}" >
+			<input type="hidden" name="order_dstatus_id" class="order_dstatus_id" value="{{ order_status_id }}" >
+			</form>
+		
+        {% if comment %}
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <td>{{ text_comment }}</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ comment }}</td>
+              </tr>
+            </tbody>
+          </table>
+        {% endif %} </div>
+    </div>
+    <div class="order_status_container">
+		<div class="text-right">
+		  <button id="button-prepare-completed" class="btn btn-primary mr-2"><i class="fa fa-check-circle"></i> Completed</button>
+		  <button id="button-waiting-preorder" class="btn btn-primary mr-2"><i class="fa fa-clock-o"></i> Waiting for Preorder</button>
+		  <button id="button-prepare-shipping" class="btn btn-primary mr-2"><i class="fa fa-truck"></i> Prepare for Shipping</button>
+		  <button id="button-prepare-pickup" class="btn btn-primary mr-2"><i class="fa fa-store"></i> Prepare for Pickup</button>
+		  <button id="button-prepare-delivery" class="btn btn-primary mr-2"><i class="fa fa-home"></i> Prepare for Delivery</button>
+		</div>
+	</div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-comment-o"></i> {{ text_history }}</h3>
+      </div>
+      <div class="panel-body">
+
+<style type="text/css">
+.ajax-edit {
+   display: none;
+   float: right;
+   margin-right: 5px;
+}
+.ajax-edit input {
+  width: 100px;
+  height: 30px;
+  padding: 6px 6px;
+  font-size: 12px;
+  text-align: right;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #ffd7d7;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+       -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+          transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.ajax-edit:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+}
+.ajax-edit +span {
+   cursor: pointer;
+}
+
+.ajax-edit2 {
+   display: none;
+   float: left;
+   margin-right: 5px;
+}
+.ajax-edit2 input {
+  width: 100px;
+  height: 30px;
+  padding: 6px 6px;
+  font-size: 12px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #ffd7d7;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+       -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+          transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.ajax-edit2:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+}
+.ajax-edit2 +span {
+   cursor: pointer;
+}
+</style>
+            
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#tab-history" data-toggle="tab">{{ tab_history }}</a></li>
+          <li><a href="#tab-additional" data-toggle="tab">{{ tab_additional }}</a></li>
+          {% for tab in tabs %}
+            <li><a href="#tab-{{ tab.code }}" data-toggle="tab">{{ tab.title }}</a></li>
+          {% endfor %}
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-history">
+            <div id="history"></div>
+<br><div id="ga-refund-block"></div>
+
+				<div id="shipment-form"></div>
+				
+            <br/>
+            <fieldset>
+              <legend>{{ text_history_add }}</legend>
+              <form class="form-horizontal">
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-order-status">{{ entry_order_status }}</label>
+                  <div class="col-sm-10">
+                    <select name="order_status_id" id="input-order-status" class="form-control">
+                      {% for order_statuses in order_statuses %}
+                        {% if order_statuses.order_status_id == order_status_id %}
+                          <option value="{{ order_statuses.order_status_id }}" selected="selected">{{ order_statuses.name }}</option>
+                        {% else %}
+                          <option value="{{ order_statuses.order_status_id }}">{{ order_statuses.name }}</option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-override"><span data-toggle="tooltip" title="{{ help_override }}">{{ entry_override }}</span></label>
+                  <div class="col-sm-10">
+                    <div class="checkbox">
+                      <input type="checkbox" name="override" value="1" id="input-override"/>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-notify">{{ entry_notify }}</label>
+                  <div class="col-sm-10">
+                    <div class="checkbox">
+                      <input type="checkbox" name="notify" value="1" id="input-notify"/>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-comment">{{ entry_comment }}</label>
+                  <div class="col-sm-10">
+                    <textarea name="comment" rows="8" id="input-comment" class="form-control"></textarea>
+                  </div>
+                </div>
+              </form>
+            </fieldset>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="hb-order-attachment-block"></div>
+                </div>
+            </div>
+            
+            <form enctype="multipart/form-data" id="form-hb-order-upload"  class="form-horizontal">
+			<div class="form-group">
+				<label class="control-label col-sm-2">Upload Wizard</label>
+				<div class="col-sm-6">
+					<input name="file" id="file" type="file" class="form-control"/>
+				</div>
+				<div class="col-sm-4"><a class="btn btn-success" id="hb-upload-attachment-button" style="backgroun-color:#009688;"><i class="fa fa-upload"></i>&nbsp;UPLOAD</a></div>
+				
+				<div class="col-sm-12" style="margin-top:20px;"><div id="hb-upload-attachment-result"></div></div>
+			</div>
+			
+			
+			</form>
+			
+			<script type="text/javascript">
+		        function loadOrderAttachmentBlock(){
+                	$('#hb-order-attachment-block').html('<center><div style="padding:100px;"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div></center>');
+                	$('#hb-order-attachment-block').load('index.php?route=extension/hbapps/hb_orderstatus/load_order_attachment_block&user_token={{ user_token }}&order_id={{ order_id }}');
+                }
+                
+                loadOrderAttachmentBlock();
+                
+			    $('#hb-upload-attachment-button').on('click', function() {
+                	$('#hb-upload-attachment-result').html('<center><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></center>');
+                	$.ajax({
+                		type: 'post',
+                		url: 'index.php?route=extension/hbapps/hb_orderstatus/order_attachment&user_token={{ user_token }}&order_id={{ order_id }}',
+                		data: new FormData($('#form-hb-order-upload')[0]),
+                		dataType: 'json',
+                		cache: false,
+                		contentType: false,
+                		processData: false,
+                		success: function(json) {
+                			if (json['success']) {
+                				  $('#hb-upload-attachment-result').html('<div class="alert alert-success">'+json['success']+'<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                				  loadOrderAttachmentBlock();
+                			}
+                			if (json['error']) {
+                				  $('#hb-upload-attachment-result').html('<div class="pr_error">'+json['error']+'<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                			}
+                		},			
+                		error: function(xhr, ajaxOptions, thrownError) { alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText); }
+                	 });	
+                });
+                
+                function delete_order_attachment(order_attachment_id){
+                	$('#hb-upload-attachment-result').html('<center><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></center>');
+                	$.ajax({
+                		type: 'post',
+                		url: 'index.php?route=extension/hbapps/hb_orderstatus/delete_order_attachment&user_token={{ user_token }}',
+                		data: {order_attachment_id : order_attachment_id},
+                		dataType: 'json',
+                		success: function(json) {
+                			if (json['success']) {
+                			    $('#hb-upload-attachment-result').html('<div class="alert alert-success"><i class="fa fa-check"></i> '+json['success']+'<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                		        loadOrderAttachmentBlock()
+                			}
+                		},			
+                		error: function(xhr, ajaxOptions, thrownError) { alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText); }
+                	 });
+                }
+
+			</script>
+			
+           <div class="text-right">
+            {#  <button id="button-prepare-shipping" class="btn btn-primary mr-2"><i class="fa fa-truck"></i> Prepare for Shipping</button>
+              <button id="button-prepare-pickup" class="btn btn-primary mr-2"><i class="fa fa-store"></i> Prepare for Pickup</button>
+              <button id="button-prepare-delivery" class="btn btn-primary mr-2"><i class="fa fa-home"></i> Prepare for Delivery</button>#}
+              <button id="button-history" data-loading-text="{{ text_loading }}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> {{ button_history_add }}</button>
+            </div> 
+          </div> 
+          <div class="tab-pane" id="tab-additional"> {% if account_custom_fields %}
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <td colspan="2">{{ text_account_custom_field }}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {% for custom_field in account_custom_fields %}
+                      <tr>
+                        <td>{{ custom_field.name }}</td>
+                        <td>{{ custom_field.value }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+
+                </table>
+              </div>
+            {% endif %}
+            {% if payment_custom_fields %}
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <td colspan="2">{{ text_payment_custom_field }}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {% for custom_field in payment_custom_fields %}
+                      <tr>
+                        <td>{{ custom_field.name }}</td>
+                        <td>{{ custom_field.value }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+
+                </table>
+              </div>
+            {% endif %}
+            {% if shipping_method and shipping_custom_fields %}
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <td colspan="2">{{ text_shipping_custom_field }}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {% for custom_field in shipping_custom_fields %}
+                      <tr>
+                        <td>{{ custom_field.name }}</td>
+                        <td>{{ custom_field.value }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+
+                </table>
+              </div>
+            {% endif %}
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <td colspan="2">{{ text_browser }}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ text_ip }}</td>
+                    <td>{{ ip }}</td>
+                  </tr>
+                  {% if forwarded_ip %}
+                    <tr>
+                      <td>{{ text_forwarded_ip }}</td>
+                      <td>{{ forwarded_ip }}</td>
+                    </tr>
+                  {% endif %}
+                  <tr>
+                    <td>{{ text_user_agent }}</td>
+                    <td>{{ user_agent }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ text_accept_language }}</td>
+                    <td>{{ accept_language }}</td>
+                  </tr>
+                </tbody>
+
+              </table>
+            </div>
+          </div>
+          {% for tab in tabs %}
+            <div class="tab-pane" id="tab-{{ tab.code }}">{{ tab.content }}</div>
+          {% endfor %} </div>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript"> 
+$(document).ready(function () {
+
+    // -----------------------------------------
+    // 1. On page load → restore saved button colors
+    // -----------------------------------------
+    $('button[data-order-product-id]').each(function () {
+        var id = $(this).data('order-product-id');
+
+        if (localStorage.getItem('size_weight_saved_' + id) === '1') {
+            $(this).removeClass('btn-danger').addClass('btn-primary');
+        }
+    });
+
+
+    // -----------------------------------------
+    // 2. When modal opens → load existing values
+    // -----------------------------------------
+    $('div.modal').on('show.bs.modal', function (e) {
+        var modal = $(this);
+        var button = $(e.relatedTarget);
+        var order_product_id = button.data('order-product-id');
+
+        $.ajax({
+            url: 'index.php?route=sale/order/getProductSizeWeight&user_token={{ user_token }}&order_product_id=' + order_product_id,
+            dataType: 'json',
+            success: function(json) {
+                modal.find('input[name="weight_kg_' + order_product_id + '"]').val(json.weight_kg);
+                modal.find('input[name="size_l_' + order_product_id + '"]').val(json.size_l);
+                modal.find('input[name="size_w_' + order_product_id + '"]').val(json.size_w);
+                modal.find('input[name="size_h_' + order_product_id + '"]').val(json.size_h);
+            }
+        });
+    });
+
+
+    // -----------------------------------------
+    // 3. Save button
+    // -----------------------------------------
+    $(document).on('click', '.save-size-weight', function () {
+        var order_product_id = $(this).data('order-product-id');
+
+        var weight = $('input[name="weight_kg_' + order_product_id + '"]').val();
+        var size_l = $('input[name="size_l_' + order_product_id + '"]').val();
+        var size_w = $('input[name="size_w_' + order_product_id + '"]').val();
+        var size_h = $('input[name="size_h_' + order_product_id + '"]').val();
+
+        $.ajax({
+            url: 'index.php?route=sale/order/saveProductSizeWeight&user_token={{ user_token }}',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                order_product_id: order_product_id,
+                weight_kg: weight,
+                size_l: size_l,
+                size_w: size_w,
+                size_h: size_h
+            },
+            success: function (json) {
+                if (json.success) {
+
+                    // -----------------------------------------
+                    // 🔥 4. Save blue-button flag to localStorage
+                    // -----------------------------------------
+                    localStorage.setItem('size_weight_saved_' + order_product_id, '1');
+
+                    // Change color instantly
+                    $('button[data-order-product-id="' + order_product_id + '"]')
+                        .removeClass('btn-danger')
+                        .addClass('btn-primary');
+
+                    $('#sizeWeightModal_' + order_product_id).modal('hide');
+
+                    // Refresh page
+                    location.reload();
+                } else if (json.error) {
+                    alert(json.error);
+                }
+            },
+            error: function () {
+                alert("Something went wrong while saving.");
+            }
+        });
+    });
+
+});
+</script>
+			<script>
+				$(document).delegate('.btn-details-save', 'click', function() {
+					var status_id   = $(this).closest('tr').find('.input-delivery-status').val();
+					var product_id   = $(this).closest('tr').find('.order_product_id').val();
+					var url = "index.php?route=sale/order/orderdetail_status_edit&user_token={{ user_token }}&status_id="+status_id+"&product_id="+product_id;
+					$.ajax({ 
+						method:"GET",
+						url: url, 
+						data:{status_id:status_id, product_id:product_id},   
+						success: function(data){   
+						  alert('Data updated successfully');
+						}
+					});
+				});
+			</script>
+		
+  <script type="text/javascript"><!--
+  $(document).delegate('#button-invoice', 'click', function() {
+	  $.ajax({
+		  url: 'index.php?route=sale/order/createinvoiceno&user_token={{ user_token }}&order_id={{ order_id }}',
+		  dataType: 'json',
+		  beforeSend: function() {
+			  $('#button-invoice').button('loading');
+		  },
+		  complete: function() {
+			  $('#button-invoice').button('reset');
+		  },
+		  success: function(json) {
+			  $('.alert-dismissible').remove();
+
+			  if (json['error']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+			  }
+
+			  if (json['invoice_no']) {
+				  $('#invoice').html(json['invoice_no']);
+
+				  $('#button-invoice').replaceWith('<button disabled="disabled" class="btn btn-success btn-xs"><i class="fa fa-cog"></i></button>');
+			  }
+		  },
+		  error: function(xhr, ajaxOptions, thrownError) {
+			  alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		  }
+	  });
+  });
+
+  $(document).delegate('#button-reward-add', 'click', function() {
+	  $.ajax({
+		  url: 'index.php?route=sale/order/addreward&user_token={{ user_token }}&order_id={{ order_id }}',
+		  type: 'post',
+		  dataType: 'json',
+		  beforeSend: function() {
+			  $('#button-reward-add').button('loading');
+		  },
+		  complete: function() {
+			  $('#button-reward-add').button('reset');
+		  },
+		  success: function(json) {
+			  $('.alert-dismissible').remove();
+
+			  if (json['error']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+			  }
+
+			  if (json['success']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+
+				  $('#button-reward-add').replaceWith('<button id="button-reward-remove" data-toggle="tooltip" title="{{ button_reward_remove }}" class="btn btn-danger btn-xs"><i class="fa fa-minus-circle"></i></button>');
+			  }
+		  },
+		  error: function(xhr, ajaxOptions, thrownError) {
+			  alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		  }
+	  });
+  });
+
+  $(document).delegate('#button-reward-remove', 'click', function() {
+	  $.ajax({
+		  url: 'index.php?route=sale/order/removereward&user_token={{ user_token }}&order_id={{ order_id }}',
+		  type: 'post',
+		  dataType: 'json',
+		  beforeSend: function() {
+			  $('#button-reward-remove').button('loading');
+		  },
+		  complete: function() {
+			  $('#button-reward-remove').button('reset');
+		  },
+		  success: function(json) {
+			  $('.alert-dismissible').remove();
+
+			  if (json['error']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+			  }
+
+			  if (json['success']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+
+				  $('#button-reward-remove').replaceWith('<button id="button-reward-add" data-toggle="tooltip" title="{{ button_reward_add }}" class="btn btn-success btn-xs"><i class="fa fa-plus-circle"></i></button>');
+			  }
+		  },
+		  error: function(xhr, ajaxOptions, thrownError) {
+			  alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		  }
+	  });
+  });
+
+  $(document).delegate('#button-commission-add', 'click', function() {
+	  $.ajax({
+		  url: 'index.php?route=sale/order/addcommission&user_token={{ user_token }}&order_id={{ order_id }}',
+		  type: 'post',
+		  dataType: 'json',
+		  beforeSend: function() {
+			  $('#button-commission-add').button('loading');
+		  },
+		  complete: function() {
+			  $('#button-commission-add').button('reset');
+		  },
+		  success: function(json) {
+			  $('.alert-dismissible').remove();
+
+			  if (json['error']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+			  }
+
+			  if (json['success']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+
+				  $('#button-commission-add').replaceWith('<button id="button-commission-remove" data-toggle="tooltip" title="{{ button_commission_remove }}" class="btn btn-danger btn-xs"><i class="fa fa-minus-circle"></i></button>');
+			  }
+		  },
+		  error: function(xhr, ajaxOptions, thrownError) {
+			  alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		  }
+	  });
+  });
+
+  $(document).delegate('#button-commission-remove', 'click', function() {
+	  $.ajax({
+		  url: 'index.php?route=sale/order/removecommission&user_token={{ user_token }}&order_id={{ order_id }}',
+		  type: 'post',
+		  dataType: 'json',
+		  beforeSend: function() {
+			  $('#button-commission-remove').button('loading');
+		  },
+		  complete: function() {
+			  $('#button-commission-remove').button('reset');
+		  },
+		  success: function(json) {
+			  $('.alert-dismissible').remove();
+
+			  if (json['error']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+			  }
+
+			  if (json['success']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+
+				  $('#button-commission-remove').replaceWith('<button id="button-commission-add" data-toggle="tooltip" title="{{ button_commission_add }}" class="btn btn-success btn-xs"><i class="fa fa-plus-circle"></i></button>');
+			  }
+		  },
+		  error: function(xhr, ajaxOptions, thrownError) {
+			  alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		  }
+	  });
+  });
+
+  var api_token = '';
+
+  $.ajax({
+	  url: '{{ catalog }}index.php?route=api/login',
+	  type: 'post',
+	  dataType: 'json',
+	  data: 'key={{ api_key }}',
+	  crossDomain: true,
+	  success: function(json) {
+		  $('.alert').remove();
+		  if (json['error']) {
+			  if (json['error']['key']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error']['key'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+			  }
+			  if (json['error']['ip']) {
+				  $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error']['ip'] + ' <button type="button" id="button-ip-add" data-loading-text="{{ text_loading }}" class="btn btn-danger btn-xs pull-right"><i class="fa fa-plus"></i>{{ button_ip_add }}</button></div>');
+			  }
+		  }
+		  if (json['token']) {
+			  api_token = json['token'];
+		  }
+	  },
+	  error: function(xhr, ajaxOptions, thrownError) {
+		  alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+	  }
+  });
+
+  $('#history').delegate('.pagination a', 'click', function(e) {
+	  e.preventDefault();
+
+	  $('#history').load(this.href);
+  });
+
+  $('#history').load('index.php?route=sale/order/history&user_token={{ user_token }}&order_id={{ order_id }}');
+
+  $('#button-history').on('click', function() {
+	  $.ajax({
+		  url: '{{ catalog }}index.php?route=api/order/history&api_token={{ api_token }}&store_id={{ store_id }}&order_id={{ order_id }}',
+		  type: 'post',
+		  dataType: 'json',
+		  data: 'order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()) + '&notify=' + ($('input[name=\'notify\']').prop('checked') ? 1 : 0) + '&override=' + ($('input[name=\'override\']').prop('checked') ? 1 : 0) + '&append=' + ($('input[name=\'append\']').prop('checked') ? 1 : 0) + '&comment=' + encodeURIComponent($('textarea[name=\'comment\']').val()),
+		  beforeSend: function() {
+			  $('#button-history').button('loading');
+		  },
+		  complete: function() {
+			  $('#button-history').button('reset');
+		  },
+		  success: function(json) {
+			  $('.alert-dismissible').remove();
+
+			  if (json['error']) {
+				  $('#history').before('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+			  }
+
+			  if (json['success']) {
+				  $('#history').load('index.php?route=sale/order/history&user_token={{ user_token }}&order_id={{ order_id }}');
+
+				  $('#history').before('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+
+				  $('textarea[name=\'comment\']').val('');
+			  }
+		  },
+		  error: function(xhr, ajaxOptions, thrownError) {
+			  alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		  }
+	  });
+  });
+  
+   // Prepare for Shipping
+    $('#button-prepare-shipping').on('click', function() {
+        prepareOrder(17); // order_status_id = 17 for Preparing for Shipping
+    });
+    
+    // Prepare for Pickup
+    $('#button-prepare-pickup').on('click', function() {
+        prepareOrder(19); // order_status_id = 19 for Preparing for Pickup
+    });
+    
+    // Prepare for Delivery
+    $('#button-prepare-delivery').on('click', function() {
+        prepareOrder(18); // order_status_id = 18 for Preparing for Delivery
+    });
+    
+    // Completed
+    $('#button-prepare-completed').on('click', function() {
+        prepareOrder(5); // order_status_id = 5 for Completed
+    });
+	// Waiting for Preorder
+    $('#button-waiting-preorder').on('click', function() {
+        prepareOrder(23); // order_status_id = 23 for Waiting for Preorder
+    });
+    
+    // Common function to handle all button clicks
+    function prepareOrder(order_status_id) {
+        $.ajax({
+            url: '{{ catalog }}index.php?route=api/order/history&api_token={{ api_token }}&store_id={{ store_id }}&order_id={{ order_id }}',
+            type: 'post',
+            dataType: 'json',
+            data: 'order_status_id=' + encodeURIComponent(order_status_id) + 
+                  '&notify=' + ($('input[name=\'notify\']').prop('checked') ? 1 : 0) +
+                  '&override=' + ($('input[name=\'override\']').prop('checked') ? 1 : 0) +
+                  '&append=' + ($('input[name=\'append\']').prop('checked') ? 1 : 0) + 
+                  '&comment=' + encodeURIComponent($('textarea[name=\'comment\']').val()),
+            beforeSend: function() {
+                $('#button-history').button('loading');
+            },
+            complete: function() {
+                $('#button-history').button('reset');
+            },
+            success: function(json) {
+                $('.alert-dismissible').remove();
+    
+                if (json['error']) {
+                    $('#history').before('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                }
+    
+                if (json['success']) {
+                    $('#history').load('index.php?route=sale/order/history&user_token={{ user_token }}&order_id={{ order_id }}');
+    
+                    $('#history').before('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+    
+                    $('textarea[name=\'comment\']').val(''); // Clear the comment field
+                    // Reload the page after successful operation
+                    location.reload();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    }
+  
+  // Handle "Customer Request" button click event
+function getQueryParam(param) {
+    let urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
+
+// Get the order_id from the URL
+let order_id = getQueryParam('order_id');
+
+// Handle "Customer Request" button click event
+$('#customerRequestButton').on('click', function(event) {
+    event.preventDefault(); // Prevent default action of the anchor tag
+
+    // Get the user token from the URL
+    let user_token = getQueryParam('user_token');
+
+    // Construct the URL with the selected order ID
+    let url = 'index.php?route=sale/order/customer_request&user_token=' + encodeURIComponent(user_token) + '&order_id=' + encodeURIComponent(order_id);
+    
+    // Redirect to the constructed URL
+    location.href = url;
+});
+
+       
+  //--></script>
+</div>
+
+{% if prm_access_permission %}
+{% if modify_permission %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$('.ajax-edit').each(function(index, wrapper) {
+		$(this).siblings().click(function() {
+			$(wrapper).show();
+			$(wrapper).siblings().hide();
+		})
+	});
+})
+
+function save_cost(id) {
+	var input_cost = $('#cost-'+id+' input');
+	var cost = $(input_cost).val();
+	$(cost).css('cursor','progress');
+	$.ajax({
+		url: 'index.php?route=sale/order/saveCost&order_product_id='+id+'&cost='+cost+'&user_token={{ user_token }}',
+		dataType: 'html',
+		data: {},
+		success: function(cost) { 
+			$('#cost-'+id).next().html(cost);
+			close_cost(id);
+		}
+	});
+	$(input_cost).css('cursor','default');
+}
+
+function close_cost(id) {
+	$('.ajax-edit input').blur();
+	$('#cost-'+id).siblings().show();
+	$('#cost-'+id).hide();
+}
+
+
+$(document).ready(function() {
+	$('.ajax-edit2').each(function(index, wrapper) {
+		$(this).siblings().click(function() {
+			$(wrapper).show();
+			$(wrapper).siblings().hide();
+		})
+	});
+})
+
+function save_payment_cost(id) {
+	var input_payment_cost = $('#payment_cost-'+id+' input');
+	var payment_cost = $(input_payment_cost).val();
+	$(payment_cost).css('cursor','progress');
+	$.ajax({
+		url: 'index.php?route=sale/order/savePaymentCost&order_id='+id+'&payment_cost='+payment_cost+'&user_token={{ user_token }}',
+		dataType: 'html',
+		data: {},
+		success: function(payment_cost) { 
+			$('#payment_cost-'+id).next().html(payment_cost);
+			close_payment_cost(id);
+		}
+	});
+	$(input_payment_cost).css('cursor','default');
+}
+
+function close_payment_cost(id) {
+	$('.ajax-edit2 input').blur();
+	$('#payment_cost-'+id).siblings().show();
+	$('#payment_cost-'+id).hide();
+}
+
+function save_shipping_cost(id) {
+	var input_shipping_cost = $('#shipping_cost-'+id+' input');
+	var shipping_cost = $(input_shipping_cost).val();
+	$(input_shipping_cost).css('cursor','progress');
+	$.ajax({
+		url: 'index.php?route=sale/order/saveShippingCost&order_id='+id+'&shipping_cost='+shipping_cost+'&user_token={{ user_token }}',
+		dataType: 'html',
+		data: {},
+		success: function(shipping_cost) { 
+			$('#shipping_cost-'+id).next().html(shipping_cost);
+			close_shipping_cost(id);
+		}
+	});
+	$(input_shipping_cost).css('cursor','default');
+}
+
+function close_shipping_cost(id) {
+	$('.ajax-edit2 input').blur();
+	$('#shipping_cost-'+id).siblings().show();
+	$('#shipping_cost-'+id).hide();
+}
+
+function save_extra_cost(id) {
+	var input_extra_cost = $('#extra_cost-'+id+' input');
+	var extra_cost = $(input_extra_cost).val();
+	$(extra_cost).css('cursor','progress');
+	$.ajax({
+		url: 'index.php?route=sale/order/saveExtraCost&order_id='+id+'&extra_cost='+extra_cost+'&user_token={{ user_token }}',
+		dataType: 'html',
+		data: {},
+		success: function(extra_cost) { 
+			$('#extra_cost-'+id).next().html(extra_cost);
+			close_extra_cost(id);
+		}
+	});
+	$(input_extra_cost).css('cursor','default');
+}
+
+function close_extra_cost(id) {
+	$('.ajax-edit2 input').blur();
+	$('#extra_cost-'+id).siblings().show();
+	$('#extra_cost-'+id).hide();
+}
+</script> 
+{% endif %}	
+{% endif %}	
+            
+
+				<script type="text/javascript">
+				    $('#shipment-form').load('index.php?route=extension/hbapps/order_shipment/shipment_form&user_token={{ user_token }}&order_id={{ order_id }}&store_id={{ store_id }}');
+				</script> 
+				
+
+			    <script type="text/javascript">
+                    $(document).ready(function() {
+                    	$('#ga-refund-block').html('<center><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></center>');
+                    	$('#ga-refund-block').load('index.php?route=extension/hbapps/google_ecommerce/ga_refund_block&user_token={{ user_token }}&order_id={{ order_id }}');
+                    });
+                </script>
+            	
+{{ footer }} 
+
+                <script type="text/javascript">
+				    $('#direct-order-link-block').load('index.php?route=extension/hbapps/order_view_link/direct_order_link_block&user_token={{ user_token }}&order_id={{ order_id }}');
+				    
+				    function generateOrderLinkKey(order_id) {
+                    	$.ajax({
+                    		url: 'index.php?route=extension/hbapps/order_view_link/generate&user_token={{ user_token }}&order_id='+order_id,
+                    		dataType: 'json',
+                    		success: function(json) {
+                    			if (json['success']) {
+                    				  $('#direct-order-link-block').load('index.php?route=extension/hbapps/order_view_link/direct_order_link_block&user_token={{ user_token }}&order_id='+order_id);
+                    			}
+                    		}
+                    	 });
+                    }
+				</script> 
+				
+				<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
+                <script type="text/javascript">
+                function setTooltip(btn, message) {
+                  btn.tooltip('hide')
+                    .attr('data-original-title', message)
+                    .tooltip('show');
+                }
+                
+                function hideTooltip(btn) {
+                  setTimeout(function() {
+                    btn.tooltip('hide');
+                  }, 9000);
+                }
+                
+                var clipboard = new ClipboardJS('.copybtn');
+                
+                clipboard.on('success', function(e) {
+                	var btn = $(e.trigger);
+                  	setTooltip(btn, 'Copied');
+                  	//hideTooltip(btn);
+                });
+                </script>
+			
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var addressElement = document.getElementById('mapLink');
+        var addressHTML = addressElement.innerHTML;
+
+        // Remove any text before the first <br> tag
+        var indexOfFirstBr = addressHTML.indexOf('<br');
+        if (indexOfFirstBr !== -1) {
+            addressHTML = addressHTML.substring(indexOfFirstBr);
+        }
+
+        // Replace <br> with + for URL
+        var formattedAddressForUrl = addressHTML.replace(/<br\s*\/?>/gi, '+').replace(/<\/?[^>]+>/gi, '');
+
+        // Create the Google Maps URL
+        var mapUrl = "https://www.google.com/maps?q=" + encodeURIComponent(formattedAddressForUrl);
+        addressElement.href = mapUrl;
+
+        // Format address for display
+        var formattedAddressForDisplay = addressHTML.replace(/<br\s*\/?>/gi, '<br>').replace(/<\/?[^>]+>/gi, '');
+        
+        // Update display address span
+        var displayAddressElement = document.getElementById('displayAddress');
+        displayAddressElement.innerHTML = formattedAddressForDisplay;
+    });
+
+function copyToClipboard(text, buttonId) {
+  navigator.clipboard.writeText(text).then(function() {
+    var button = document.getElementById(buttonId);
+    var originalTitle = button.getAttribute('data-original-title');
+    
+    // Change the tooltip text
+    button.setAttribute('data-original-title', 'Copied!');
+    
+    // Trigger the tooltip
+    $(button).tooltip('show');
+    
+    // Reset the tooltip text and hide it after 2 seconds
+    setTimeout(function() {
+      button.setAttribute('data-original-title', originalTitle);
+      $(button).tooltip('hide');
+    }, 2000);
+  }, function(err) {
+    console.error('Could not copy text: ', err);
+  });
+}
+
+// Initialize tooltips
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+<style>
+    .email_container, .Phone_container, .sms_container {
+  display: flex;
+  justify-content: space-between;
+}
+.order_status_container {
+    margin: 20px;
+}
+</style>
+<script>
+(function() {
+  function autoBindShippingLogic() {
+    const courierSelect = document.getElementById('courier_select');
+    const shipmentStatus = document.getElementById('shipped_order_status');
+    const orderStatus = document.getElementById('input-order-status');
+
+    // If not found yet, return false so we keep watching
+    if (!courierSelect || !shipmentStatus || !orderStatus) {
+      return false;
+    }
+
+    // Add event listener for Shipping Partner
+    courierSelect.addEventListener('change', function () {
+      const selectedText = courierSelect.options[courierSelect.selectedIndex].text.trim();
+
+      if (selectedText === 'Local Pickup') {
+        shipmentStatus.value = '20'; // Pickup Ready
+        orderStatus.value = '20';
+      } else if (selectedText === 'Local Delivery') {
+        shipmentStatus.value = '21'; // Delivery Ready
+        orderStatus.value = '21';
+      } else if (selectedText !== '-- PLEASE SELECT --') {
+        shipmentStatus.value = '3';  // Shipped
+        orderStatus.value = '3';
+      }
+    });
+
+    // Add event listener for Shipment Status
+    shipmentStatus.addEventListener('change', function () {
+      const val = shipmentStatus.value;
+      if (['20', '21', '3'].includes(val)) {
+        orderStatus.value = val;
+      }
+    });
+
+    return true; // successfully bound
+  }
+
+  // Start observing the DOM for the elements to appear
+  const observer = new MutationObserver(function(mutations, obs) {
+    if (autoBindShippingLogic()) {
+      obs.disconnect(); // Stop watching once bound
+    }
+  });
+
+  // Start watching the whole document body
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script>

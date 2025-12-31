@@ -1,0 +1,737 @@
+{{ header }}
+<style>
+.route-extension-module-events-events .product-list .product-thumb .image {
+    padding: 0px 20px 20px 0px;
+}
+.product-thumb .caption{
+    min-height:350px;
+}
+#list-view,#grid-view{visibility:hidden;}
+
+
+/* Event Design change */
+/*
+@media(min-width:600px){
+
+	.route-extension-module-events-events .product-list .product-thumb {
+		display: flex;
+		flex-direction: row-reverse;
+		justify-content: space-around;
+	}
+
+	.route-extension-module-events-events .product-thumb .caption {
+
+		min-height: 200px; !important
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+		position: unset;
+		margin-left: 30px;
+		position: unset;
+		justify-content: center;
+	}
+
+	.route-extension-module-events-events .product-thumb .caption h4 a{
+
+		color: black;
+		text-decoration: none;
+		
+	}
+
+	.route-extension-module-events-events .product-layout{
+
+		background: #E8EFF6;
+		margin: 20px 0px;
+		box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+		transition:.7s ease;
+
+	}
+
+	.route-extension-module-events-events .product-layout .product-thumb .image{
+
+		padding: 15px !important;
+
+	}
+
+	.route-extension-module-events-events .product-list .product-thumb {
+		display: flex;
+		flex-direction: row-reverse;
+		align-items: center;
+		background: white;
+		justify-content: space-between;
+		padding-left: 15%;
+	}
+
+	.route-extension-module-events-events .caption p:nth-child(3) {
+		color: white;
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 15%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		justify-content: center !important;
+		gap: 25px;
+		padding: 30px;
+		background: #333;
+		height: 100%;
+	}
+
+	.route-extension-module-events-events img.img-responsive {
+		height: 150px;
+	}
+	.route-extension-module-events-events .product-list .image {
+		width: 20%;
+	}
+
+	.route-extension-module-events-events .product-thumb div:nth-child(2) {
+		width: 80%;
+	}
+
+	.route-extension-module-events-events .row div:nth-child(2),#content .row div:nth-child(4){
+				margin-top:6px;
+	}
+
+
+
+	.route-extension-module-events-events .product-list .image{
+			
+			display:flex;
+			align-items:center;
+			transition:.5s ease;
+
+	}
+
+	.route-extension-module-events-events .product-list .image {
+		border-left: 2px solid #333;
+		justify-content:center;
+	}
+
+
+	label.control-label {
+		margin-top: 3px;
+	}
+
+}
+
+@media(max-width:600px){
+
+    .route-extension-module-events-events .product-list .product-thumb{
+	
+	    display:flex;
+		align-items: center;
+	
+	}
+	.route-extension-module-events-events .product-list .product-thumb .image{
+	
+	    padding:15px 0px 0px 0px!important;
+		margin-bottom:10px;
+	}
+	
+	.route-extension-module-events-events .product-list .product-thumb .caption{
+	
+	    align-items:center;
+		min-height:auto;
+		position:unset !important;
+	 
+	}
+	
+	.route-extension-module-events-events .caption h4 a{color:black; text-decoration:none;}
+	
+	.route-extension-module-events-events .product-list .product-thumb .caption p:nth-child(2){
+	
+	     display:none;
+	
+	}
+	
+	.route-extension-module-events-events .product-layout{
+	     
+	     margin:30px 0px;
+		 position: relative;
+		 background:white;
+         box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;		 
+	
+	}
+	
+    .route-extension-module-events-events .product-thumb {
+    padding-top: 15%;
+    }
+	
+	.route-extension-module-events-events .caption p:nth-child(3) {
+	
+		display:flex;
+		justify-content: center !important;
+		position: absolute;
+		width:100%;
+		background:#333;
+		top:0;
+		height: 15%;
+		color:white;
+		align-items: center;
+	}
+	
+	
+
+}
+
+.route-extension-module-events-events-view #content .row{
+
+    display:flex;
+	flex-direction:column;
+	align-items:center;
+
+}
+
+.route-extension-module-events-events-view .price,.description {
+    font-size: 16px;
+    line-height: 26px;
+}
+
+.route-extension-module-events-events-view .price span a,.description span a{
+    
+	text-decoration:none !important;
+	color:black;
+	border-bottom: none !important;
+	
+
+}
+
+.route-extension-module-events-events-view .registration-groups {
+    justify-content: space-between;
+    margin: 25px 0px;
+}
+
+.route-extension-module-events-events-view .thumbnail img{
+
+    height:400px;
+
+}
+
+.route-extension-module-events-events-view .image-additional{
+
+    display:none;
+
+}
+
+.route-extension-module-events-events-view .site-wrapper{
+
+    background:url(  );
+	background-size:cover;
+	background-position:center;
+	background-repeat:no-repeat;
+
+}
+
+.route-extension-module-events-events-view .grid-row.grid-row-3 {
+    background: #EEEEEE;
+}
+
+.route-extension-module-events-events-view .header.header-classic.header-lg {
+    background: white;
+    z-index: -1;
+}
+
+.route-extension-module-events-events-view #content{
+
+    padding-bottom:0px;
+
+}
+.route-extension-module-events-events-view #content .row{
+
+    background:#F8F8F8;
+
+}
+
+.route-extension-module-events-events-view .mid-bar.navbar-nav {
+    background: white;
+}	
+
+
+@media(max-width:600px){
+
+    .route-extension-module-events-events-view #content .row .col-sm-6 .description,.route-extension-module-events-events-view #content .row .col-sm-6 .price ,.route-extension-module-events-events-view #content .row .col-sm-6 .registration-groups , .route-extension-module-events-events-view #content .row .col-sm-6 .nav-tabs,.route-extension-module-events-events-view #content .row .col-sm-6 .tab-content,.route-extension-module-events-events-view #content .row .col-sm-6 .review {
+	
+						max-width: 80%;
+						margin: auto;
+						
+       }
+	   
+	   .route-extension-module-events-events-view .registration-groups {
+    flex-direction: column;
+	align-items: center;
+}
+
+    .route-extension-module-events-events-view #content .row .col-sm-6 span,.route-extension-module-events-events-view #content .row .col-sm-6{
+	text-align:center;
+	}
+	  
+}
+
+@media(min-width:600px) and (max-width:1000px){
+	.route-extension-module-events-events .product-list .image{
+		width: 35% !important;
+	}
+	
+	.route-extension-module-events-events .product-list .product-thumb{
+		padding-left: 25% !important;
+	}
+	
+	.route-extension-module-events-events .caption p:nth-child(3){
+		width:25% !important;
+	} 
+	.route-extension-module-events-events .product-list .image {
+		width: 35% !important;
+	}
+	
+	.route-extension-module-events-events .product-thumb .caption{
+		padding-right: 5% !important;
+	}
+}
+*/ 
+.event-date-section{
+	background: #333;
+	color:#ffffff;
+	padding-top:20px;
+	font-size: 25px;
+}
+.product-layout.product-list.col-xs-12{margin-bottom:20px;background-color:#E8EFF7;z-index:2;}
+.caption h4 a{
+	color: black;
+	text-decoration: none;
+	
+}
+label.control-label {
+	margin-top: 3px;
+}
+@media(min-width:600px) and (max-width:1000px){
+	.text-right {
+		text-align: left;
+	}
+}
+
+@media(max-width:768px){
+	.product-layout{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		background: white;
+		gap: 20px;
+	}
+	.product-layout div:nth-child(1){
+		order: 1;
+	}
+	.product-layout div:nth-child(2){
+		order: 3;
+		text-align: center;
+	}
+	.product-layout div:nth-child(3){
+		order: 2;
+		text-align: center;
+	}
+	.btn-group.hidden-xs{
+		display:inline-block !important;
+	}
+	.col-md-3.col-sm-3.col-xs-12.col-lg-3.event-date-section {
+		height: 90px;
+		padding-top:5px;
+	}
+	.product-layout.product-list.col-xs-12 div {
+		margin-bottom: 70px;
+	}
+	.product-layout .event-caption-section {
+		margin-bottom: 0px !important;
+		padding-left: 0px !important;
+	}
+}
+@media(max-width:600px){
+	.text-right{
+		text-align:left;
+	}
+}
+
+span.event_start_time {
+    position: absolute;
+    bottom: 0px;
+    
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+.event-image-section .image {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+     mix-blend-mode: multiply;
+}
+@media (min-width: 1024px) {
+    .event-image-section .img-responsive {
+        transform: scale(1.5); 
+    }
+    .product-layout.product-list.col-xs-12{
+        height:300px;
+        mix-blend-mode: multiply;
+    }
+}
+
+.product-layout.product-list{cursor:pointer;}
+.caption h4 {
+    padding-top: 15px;
+}
+.yearheading h2{
+    border-bottom: 1px solid #cccccc;
+}
+</style>
+<div class="container">
+    <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+            <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+    </ul>
+    
+    <div class="row">{{ column_left }}
+        {% if column_left and column_right %}
+            {% set class = 'col-sm-6' %}
+        {% elseif column_left or column_right %}
+            {% set class = 'col-sm-9' %}
+        {% else %}
+            {% set class = 'col-sm-12' %}
+        {% endif %}
+        <div id="content" class="{{ class }}">{{ content_top }}
+            <h2>{{ heading_title }}</h2>
+            {% if events %}
+            
+                <div class="row">
+                    <div class="col-md-4">
+                      <div class="btn-group hidden-xs">                        
+                        <button type="button" onclick="window.location='{{ url_calendar }}'"  class="btn btn-default" data-toggle="tooltip" title="Click to check upcoming events"><i class="fa fa-calendar"></i>&nbsp;&nbsp;{{ event_month }} - Click to check upcoming events&nbsp;&nbsp;</button>
+						<button type="button" id="list-view" class="btn btn-default" data-toggle="tooltip" title="{{ button_list }}"><i class="fa fa-th-list"></i></button>
+                        <button type="button" id="grid-view" class="btn btn-default" data-toggle="tooltip" title="{{ button_grid }}"><i class="fa fa-th"></i></button>
+                      </div>
+                    </div>
+                    <div class="col-md-2 text-right">
+                      <label class="control-label" for="input-sort">{{ text_sort }}</label>
+                    </div>
+                    <div class="col-md-3 text-right">
+                      <select id="input-sort" class="form-control" onchange="location = this.value;">
+
+                        {% for sorts in sorts %}
+                            {% if sorts.value == sort ~'-'~ order %}
+                                <option value="{{ sorts.href }}" selected="selected">{{ sorts.text }}</option>
+                            {% else %}
+                                <option value="{{ sorts.href }}">{{ sorts.text }}</option>
+                            {% endif %}
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="col-md-1 text-right">
+                      <label class="control-label" for="input-limit">{{ text_limit }}</label>
+                    </div>
+                    <div class="col-md-2 text-right">
+                      <select id="input-limit" class="form-control" onchange="location = this.value;">
+                        {% for limits in limits %}
+                            {% if limits.value == limit %}
+                                <option value="{{ limits.href }}" selected="selected">{{ limits.text }}</option>
+                            {% else %}
+                                <option value="{{ limits.href }}">{{ limits.text }}</option>
+                            {% endif %}
+                        {% endfor %}
+                      </select>
+                    </div>
+                </div>
+            
+            
+                <br />
+                <div class="row">
+                    
+                	 <div class="listGames">
+                        <button type="button" class="btn btn-default" id="showGamesBtn" data-toggle="tooltip" title="Click to check the list of available games">
+                            List of Available Games
+                        </button>
+                    </div>
+                
+					<!-- Modal Popup -->
+					<div id="gamesModal" class="modal fade" tabindex="-1" role="dialog">
+						<div class="modal-dialog modal-lg" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title"> List of Available Games</h4>
+								</div>
+								<div class="modal-body">									
+								    {#	<table class="table table-bordered">
+										<thead>
+											<tr>
+											  <th>Game</th>
+											  <th>Registrations</th>
+											  <th>Length</th>
+											  <th>Game Type</th>
+											  <th>Difficulty</th>
+											  <th>Video</th>
+											</tr>
+										</thead>
+										<tbody id="gamesTableBody">
+											{% for game in games_list %}
+											<tr>
+												<td>{{ game.name }}</td>
+												<td> {{ game.registrations }}</td>
+												<td>{{ game.length }}</td>
+												<td>{{ game.game_type }}</td>
+												<td>{{ game.difficulty }}</td>
+												<td>
+											 {% if game.video %}
+												<a class="popup-video btn" href="{{ game.video}}">View</a>
+												{% endif %} 
+												</td>
+											</tr>
+											{% else %}
+											<tr><td colspan="9">No games available.</td></tr>
+											{% endfor %}
+											 
+										</tbody>
+									</table> #}
+									<table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                           <th>Image</th> 
+                                          <th>Game</th>
+                                          <th>Registrations</th>
+                                          <th>Length</th>
+                                          <th>Game Type</th>
+                                          <th>Difficulty</th>
+                                          <th>Video</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gamesTableBody">
+                                            {% for game in games_list %}
+                                            <tr>
+                                                <td>
+                                                   {% if images[loop.index0] and images[loop.index0].galleryThumb %}
+                                                        <img src="{{ images[loop.index0].galleryThumb }}" alt="{{ game.name }}" style="width: 50px; height: auto;">
+                                                    {% else %}
+                                                        No Image
+                                                    {% endif %}
+                                                </td>
+                                                <td><a href="/index.php?route=product/product&product_id={{game.product_id}}">{{ game.name }}</a></td>
+                                                <td>{{ game.registrations }}</td>
+                                                <td>{{ game.length }}</td>
+                                                <td>{{ game.game_type }}</td>
+                                                <td>{{ game.difficulty }}</td>
+                                                <td>
+                                                    {% if game.video %}
+                                                        <a class="popup-video btn" href="{{ game.video }}">View</a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% else %}
+                                            <tr><td colspan="7">No games available.</td></tr>
+                                            {% endfor %}
+                                        </tbody>
+                                </table>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					{% set oldyear = '' %}
+                    {% for event in events %}
+						{% set myear = event.event_month ~ ' ' ~ event.event_year %}
+						{% if(event.event_month!='') %}
+							<div class="col-md-12 yearheading">
+								{% if(oldyear!=myear) %}
+								<h2>{{ myear }}{% if(event.event_month==event_month) %} {{ current_month}} {% endif %}</h2>
+								{% set oldyear = myear %}
+								{% endif %}
+							</div>
+						{% endif %}
+                        <div class="product-layout product-list col-xs-12" onclick="window.location.href='{{ event.href }}'">
+							<div class="col-md-3 col-sm-3 col-xs-12 col-lg-3 event-date-section">
+								<div class="text-center">						
+								{% if event.start_date is defined %}
+									<span class="event_month_day">{{ event.day }}</span>
+									<span class="event_month_date">{{ event.date }}</span>
+									<span class="event_start_time">Starts: {{ event.start_time }}</span>  
+								{% endif %}
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-6 col-xs-12 col-lg-6 event-caption-section">
+								<div class="caption">
+									<h4><a href="{{ event.href }}">{{ event.name }}</a></h4>
+									<p>{{ event.description }}</p>						
+									
+									
+									{% if event.venue is defined %}
+										<p><b>{{ text_venue }}</b>: {{ event.venue }}</p>
+									{% endif %}
+									
+									{% if event.start_date is defined %}									
+										{% if event.start_date == event.end_date %}
+											<p><b>{{ text_date }}</b> {{ event.start_date }} ({{ event.start_time }} - {{ event.end_time }})</p>
+										{% else %}
+											{% if event.start_date is defined %}
+												<p><b>{{ text_start_date }}</b> {{ event.start_date }} {{ event.start_time }}</p>
+											{% endif %}    
+											{% if event.end_date is defined %}
+												<p><b>{{ text_end_date }}</b> {{ event.end_date }} {{ event.end_time }}</p>
+											{% endif %}
+										{% endif %}   
+									{% endif %}
+									
+									<div class="registration-count">
+										<p><b>Registration :</b> {{ event.sum_of_existing_registered_users }} / {{ event.maxregister }}</p>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3 col-sm-3 col-xs-12 col-lg-3 event-image-section">
+								<div class="image"><a href="{{ event.href }}"><img src="{{ event.thumb }}" alt="{{ event.name }}" title="{{ event.name }}" class="img-responsive" /></a></div>
+							</div>							
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if(pagination) %}
+                <div class="row">
+                  <div class="col-sm-6 text-left">{{ pagination }}</div>
+                  <div class="col-sm-6 text-right">{{ pageresults }}</div>
+                </div>
+				{% endif %}
+            
+            
+            {% else %}
+            
+                <p>{{ text_empty }}</p>
+                <div class="buttons">
+                    <div class="pull-right"><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div>
+                </div>
+            
+            {% endif %}
+        
+        {{ content_bottom }}</div>
+    
+    {{ column_right }}</div>
+    
+</div>
+
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css">
+
+<!-- Include Magnific Popup JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+<script>
+jQuery(function($) {
+    $( '#list-view' ).trigger( "click" );
+});
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('showGamesBtn').addEventListener('click', function() {
+        $('#gamesModal').modal('show');
+    });
+});
+
+$(document).ready(function() {
+     $('#gamesModal').on('shown.bs.modal', function() {
+    // Initialize Magnific Popup for video links with YouTube embed support
+    $('.popup-video').magnificPopup({
+        type: 'iframe',
+        mainClass: 'mfp-fade',
+        removalDelay: 160,
+        preloader: false,
+        fixedContentPos: false,
+        // Configure iframe patterns to properly embed YouTube videos
+        iframe: {
+            patterns: {
+                youtube: {
+                    index: 'youtube.com/',
+                    id: function(url) {
+                        var m = url.match(/[\\?\\&]v=([^\\?\\&]+)/);
+                        return m && m[1] ? m[1] : null;
+                    },
+                    src: 'https://www.youtube.com/embed/%id%?autoplay=1'
+                }
+            }
+        },
+        callbacks: {
+            open: function() {
+                // Add style when popup opens
+                $('body').addClass('modal-open');
+                $('.modal').css('z-index', 1);
+            },
+            close: function() {
+                // Remove style when popup closes
+                $('body').removeClass('modal-open');
+                $('.modal').css('z-index', '');
+            }
+        }
+    });
+    });
+    // Check if games list is empty
+    if ($('#gamesTableBody tr').length === 0) {
+        $('#noGamesMessage').show();  // Show the no games message
+    } else {
+        $('#noGamesMessage').hide();   // Hide the message if there are games
+    }
+
+    $('#gamesTableBody').parent('table').DataTable({
+        "pageLength": 10,
+        "lengthMenu": [10, 25, 50],
+        "order": [[0, "desc"]],
+        "responsive": true,
+        "language": {
+            "search": "Search:",
+            "lengthMenu": "Show _MENU_ entries",
+            "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+            "infoEmpty": "Showing 0 to 0 of 0 entries",
+            "infoFiltered": "(filtered from _MAX_ total entries)",
+            "paginate": {
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "previous": "Previous"
+            }
+        },
+        "columns": [
+            { "data": "Image" },
+            { "data": "name" },
+            { "data": "registrations" },
+            { "data": "length" },
+            { "data": "game_type" },
+            { "data": "difficulty" },
+            { "data": "video", "orderable": false }
+        ]
+    });
+});
+
+</script>
+
+
+<style>
+    .listGames{
+        display: flex;
+        justify-content: flex-end;
+    }
+.modal-dialog.modal-lg {
+        width: 60%;
+        font-size: 14px;
+    }
+.mfp-container {
+    z-index: 0 !important; /* Ensure it is above the modal */
+}
+@media(max-width:1024px ) { 
+	.modal-dialog.modal-lg {
+	
+		width: 90%;
+	}
+	div#DataTables_Table_0_wrapper {
+        overflow: scroll;
+        width: 100%;
+    }
+}
+</style>
+{{ footer }}

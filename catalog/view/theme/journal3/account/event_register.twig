@@ -1,0 +1,854 @@
+{{ header }}
+{% if not j3.document.isPopup() %}
+<ul class="breadcrumb">
+  {% for breadcrumb in breadcrumbs %}
+  <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+  {% endfor %}
+</ul>
+{% if j3.settings.get('pageTitlePosition') == 'top' %}
+  <h1 class="title page-title"><span>{{ heading_title }} - {{ events_name }}</span></h1>
+{% endif %}
+{{ j3.loadController('journal3/layout', 'top') }}
+<div id="account-register" class="container">
+  {% if error_warning %}
+  <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>
+  {% endif %}
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class }} register-page">
+      {% if j3.settings.get('pageTitlePosition') == 'default' %}
+        <h1 class="title page-title">{{ heading_title }} - {{ events_name }}</h1>
+      {% endif %}
+      {{ content_top }}
+      <!--<p>{{ text_account_already }}</p>-->
+{% endif %}
+      <form action="{{ action }}" method="post" enctype="multipart/form-data" class="register-form form-horizontal" id="registrationForm" >
+          <div  role="alert"  id="error-warning"></i>  </div>
+        <div id="account">
+          <legend>{{ text_your_details }}</legend>
+          <input type="hidden" name="events_id" id="events_id" value="{{ events_id }}" />
+          <input type="hidden" name="events_name" id="events_name" value="{{ events_name }}" />
+          <input type="hidden" name="existing_customer_id" id="existing_customer_id" value="{{ existing_customer_id }}" />
+          
+          <div class="form-group required account-firstname">
+            <label class="col-sm-2 control-label" for="input-firstname">{{ entry_firstname }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="firstname" value="{{ firstname }}" placeholder="{{ entry_firstname }}" id="input-firstname" class="form-control" />
+              {% if error_firstname %}
+              <div class="text-danger">{{ error_firstname }}</div>
+              {% endif %} </div>
+          </div>
+          <div class="form-group required account-lastname">
+            <label class="col-sm-2 control-label" for="input-lastname">{{ entry_lastname }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="lastname" value="{{ lastname }}" placeholder="{{ entry_lastname }}" id="input-lastname" class="form-control" />
+              {% if error_lastname %}
+              <div class="text-danger">{{ error_lastname }}</div>
+              {% endif %} </div>
+          </div>
+          <div class="form-group required account-email">
+            <label class="col-sm-2 control-label" for="input-email">{{ entry_email }}</label>
+            <div class="col-sm-10">
+              <input type="email" name="email" value="{{ email }}" placeholder="{{ entry_email }}" id="input-email" class="form-control" readonly/>
+              {% if error_email %}
+              <div class="text-danger">{{ error_email }}</div>
+              {% endif %} </div>
+          </div>
+          <div class="form-group required account-telephone">
+            <label class="col-sm-2 control-label" for="input-telephone">{{ entry_telephone }}</label>
+            <div class="col-sm-10">
+              <input type="tel" name="telephone" value="{{ telephone }}" placeholder="{{ entry_telephone }}" id="input-telephone" class="form-control" />
+              {% if error_telephone %}
+              <div class="text-danger">{{ error_telephone }}</div>
+              {% endif %} 
+              </div>
+          </div>
+         
+           <div class="form-group required ">
+            <label class="col-sm-2 control-label" for="input-no_of_register">Number of Persons to register</label>
+            <div class="col-sm-10">
+              <input type="number" name="registerPerson" value="" placeholder="" id="input-customerRegister" class="form-control" max="{{totalmax }}" min="1"/>
+				<input type="hidden" name="registerPerson" value="{{ eventmaxRegister }}" placeholder="" id="hidden-input-customerRegister" class="form-control" />
+               <input type="hidden" name="sumOfMaxPlayers" value="{{ sumOfMaxPlayers }}" placeholder="" id="sumOfMaxPlayers" class="form-control" />   
+                <input type="hidden" name="sum_existing_registered_users" value="{{ sum_existing_registered_users }}" placeholder="" id="sum_existing_registered_users" class="form-control" />  
+			   <input type="hidden" name="openRegister" value="{{ openRegister }}" placeholder="" id="openRegister" class="form-control" />    
+			  </div>
+          </div>
+
+          {#
+          <div class="form-group required ">
+            <label class="col-sm-2 control-label" for="input-no_of_register">Register User Name</label>
+            <div class="col-sm-10">
+              <input type="text" name="registerName" value="" placeholder="" id="userReg_name" class="form-control" />              
+              </div>
+          </div>
+          
+          <div class="form-group required account-product">
+            <label class="col-sm-2 control-label" for="input-product">Game list</label>
+            <div class="col-sm-10">
+                <select name="product_id" id="input-product-id" class="form-control">
+                    <option value="">{{ text_select }}</option>
+                    {% for product in products %}
+                      {% if product.product_id == product_id %}
+                        <option data-existing-users="{{ product.existing_registered_users }}" data-capacity="{{ product.maxplayer }}" data-productname="{{ product.name }}" value="{{ product.product_id }}" selected="selected">{{ product.name }} ({{ product.existing_registered_users }}/{{ product.maxplayer }})</option>
+                        {% else %}
+                        <option data-existing-users="{{ product.existing_registered_users }}" data-capacity="{{ product.maxplayer }}" data-productname="{{ product.name }}" value="{{ product.product_id }}">{{ product.name }} ({{ product.existing_registered_users }}/{{ product.maxplayer }})</option>
+                      {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+          </div>
+          #}
+            <legend>Game List</legend>
+			<div class="listGames">
+                        <button type="button" class="btn btn-default" id="showGamesBtn" data-toggle="tooltip" title="Click to check the list of available games">
+                            List of Available Games
+                        </button>
+                    </div>
+                
+					<!-- Modal Popup -->
+					<div id="gamesModal" class="modal fade" tabindex="-1" role="dialog">
+						<div class="modal-dialog modal-lg" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title"> List of Available Games</h4>
+								</div>
+								<div class="modal-body">									
+								    {#	<table class="table table-bordered">
+										<thead>
+											<tr>
+											  <th>Game</th>
+											  <th>Registrations</th>
+											  <th>Length</th>
+											  <th>Game Type</th>
+											  <th>Difficulty</th>
+											  <th>Video</th>
+											</tr>
+										</thead>
+										<tbody id="gamesTableBody">
+											{% for game in games_list %}
+											<tr>
+												<td>{{ game.name }}</td>
+												<td> {{ game.registrations }}</td>
+												<td>{{ game.length }}</td>
+												<td>{{ game.game_type }}</td>
+												<td>{{ game.difficulty }}</td>
+												<td>
+											 {% if game.video %}
+												<a class="popup-video btn" href="{{ game.video}}">View</a>
+												{% endif %} 
+												</td>
+											</tr>
+											{% else %}
+											<tr><td colspan="9">No games available.</td></tr>
+											{% endfor %}
+											 
+										</tbody>
+									</table> #}
+									<table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                           <th>Image</th> 
+                                          <th>Game</th>
+                                          <th>Registrations</th>
+                                          <th>Length</th>
+                                          <th>Game Type</th>
+                                          <th>Difficulty</th>
+                                          <th>Video</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gamesTableBody">
+                                            {% for game in games_list %}
+                                            <tr>
+                                                <td>
+                                                   {% if images[loop.index0] and images[loop.index0].galleryThumb %}
+                                                        <img src="{{ images[loop.index0].galleryThumb }}" alt="{{ game.name }}" style="width: 50px; height: auto;">
+                                                    {% else %}
+                                                        No Image
+                                                    {% endif %}
+                                                </td>
+                                                <td><a href="/index.php?route=product/product&product_id={{game.product_id}}">{{ game.name }}</a></td>
+                                                <td>{{ game.registrations }}</td>
+                                                <td>{{ game.length }}</td>
+                                                <td>{{ game.game_type }}</td>
+                                                <td>{{ game.difficulty }}</td>
+                                                <td>
+                                                    {% if game.video %}
+                                                        <a class="popup-video btn" href="{{ game.video }}">View</a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% else %}
+                                            <tr><td colspan="7">No games available.</td></tr>
+                                            {% endfor %}
+                                        </tbody>
+                                </table>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+             <table class="table table-bordered" id="gamelist">
+                <thead>
+                  <tr>
+                    <th>Register Name</th>
+                    <th>Game Section List</th>
+                  </tr>
+                </thead>
+            <tbody id="tableBody">
+              {% for i in 1..customerRegister %}
+                <tr>
+                  <td>
+                     <div class="form-group required ">
+                          <input type="text" name="registerName" value="" placeholder="" id="userReg_name" class="form-control registerName" />     
+                            <input type="hidden" name="registerName" value="" placeholder="" id="userReg_name" class="form-control" />     
+                      </div>
+                  </td>
+                  <td>
+               
+                   <div class="form-group required account-product">
+                       {#
+                      <select name="product_id[]" id="input-product-id_{{ i }}" class="form-control">
+                        <option value="">{{ text_select }}</option>
+                         {% for product in products %}
+                      {% if product.product_id == product_id %}
+                          <option value="{{ product.product_id }}" selected="selected">{{ product.name }} ({{ product.existing_registered_users }}/{{ product.maxplayer }})</option>
+                        {% else %}
+                        <option value="{{ product.product_id }}">{{ product.name }} ({{ product.existing_registered_users }}/{{ product.maxplayer }})</option>
+                      {% endif %}
+                    {% endfor %}
+                      </select>
+                      #}
+                        <select name="product_id[]" id="input-product-id_{{ i }} game_list" class="form-control">
+                        <option value="">{{ text_select }}</option>
+                       {% for product in products %}
+                                        {% if product.product_id == product_id %}
+                                            <option value="{{ product.product_id }}" selected="selected" id="event_product_id">{{ product.name }}({{ product.existing_registered_users }}/{{ product.maxplayer }})</option>
+                                        {% elseif product.product_id != '6394' %}
+                                            <option value="{{ product.product_id }}" id="event_product_id">{{ product.name }}({{ product.existing_registered_users }}/{{ product.maxplayer }})</option>
+                                        {% else %}
+                                            <option value="{{ product.product_id }}" id="event_product_id">{{ product.name }}({{ openRegister }})</option>
+                                        {% endif %}
+                                    {% endfor %}
+                      </select>                    
+                    </div>                    
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+              </table>
+        </div>
+        {% if expired =='' %}
+		   <div class="buttons">
+			<div class="pull-right">  
+			{% for option in options %}
+			{#	{% if option.name == 'Event Id' %}
+					<input type="hidden" name="option[{{ option.product_option_id }}]" value="{{ events_id }}" placeholder="{{ option.name }}" id="event_id" class="form-control" />
+					<input type="hidden" name="ticket_product_id" value="{{ event_ticket_product_id }}" placeholder="" id="ticket_product_id" class="form-control" />
+					<input type="hidden" name="product_option_event_id" value="{{ option.product_option_id }}" placeholder="" id="product_option_event_id" class="form-control" /> 					
+					<input type="hidden" name="cost" value="{{ cost }}" placeholder="" id="cost" class="form-control" /> 					
+				{% endif %} #}
+				{% if option.name == 'Event Name' %}
+					<input type="hidden" name="product_option_event_name_id" value="{{ option.product_option_id }}" placeholder="" id="product_option_event_name_id" class="form-control" /> 
+					<input type="hidden" name="ticket_product_id" value="{{ event_ticket_product_id }}" placeholder="" id="ticket_product_id" class="form-control" />
+					<input type="hidden" name="product_option_event_id" value="{{ option.product_option_id }}" placeholder="" id="product_option_event_id" class="form-control" /> 					
+					<input type="hidden" name="cost" value="{{ cost }}" placeholder="" id="cost" class="form-control" /> 					
+				{% endif %}
+				{% if option.name == 'Event Venue' %}
+					<input type="hidden" name="option[{{ option.product_option_id }}]" value="{{ event_venue }}" placeholder="{{ option.value }}" id="event_venue" class="form-control" />
+					<input type="hidden" name="product_option_event_venue_id" value="{{ option.product_option_id }}" placeholder="" id="product_option_event_venue_id" class="form-control" /> 
+				{% endif %}
+				{% if option.name == 'Event Registeruser' %}
+					<input type="hidden" name="option[{{ option.product_option_id }}]" value="" placeholder="{{ option.value }}" id="event_registeruse" class="form-control" />
+					<input type="hidden" name="product_option_event_registeruse_id" value="{{ option.product_option_id }}" placeholder="" id="product_option_event_registeruse_id" class="form-control" /> 
+				{% endif %}
+			{#	{% if option.name == 'Event Product Id' %}
+					<input type="hidden" name="option[{{ option.product_option_id }}]" value="" placeholder="{{ option.value }}" id="event_product_id" class="form-control" />
+					<input type="hidden" name="product_option_event_registeruse_id" value="{{ option.product_option_id }}" placeholder="" id="product_option_event_product_id" class="form-control" /> 
+				{% endif %} #}
+				{% if option.name == 'Event Product Name' %}
+					<input type="hidden" name="option[{{ option.product_option_id }}]" value="" placeholder="{{ option.value }}" id="event_product_name" class="form-control" />
+					<input type="hidden" name="product_option_event_registeruse_id" value="{{ option.product_option_id }}" placeholder="" id="product_option_event_product_name" class="form-control" /> 
+				{% endif %}
+				{% if option.name == 'Event Payment Code' %}
+					<input type="hidden" name="option[{{ option.product_option_id }}]" value="{{ random_strings }}" placeholder="{{ option.value }}" id="event_payment_code" class="form-control" />
+					<input type="hidden" name="event_payment_code_id" value="{{ option.product_option_id }}" placeholder="" id="event_payment_code_id" class="form-control" /> 
+				{% endif %}
+				{% if option.name == 'Number of persons registered for event' %}
+					<input type="hidden" name="option[{{ option.product_option_id }}]" value="" placeholder="{{ option.value }}" id="registeruser_count" class="form-control" />
+					<input type="hidden" name="registeruser_count_id" value="{{ option.product_option_id }}" placeholder="" id="registeruser_count_id" class="form-control" /> 
+				{% endif %}
+				{#	{% if option.name == 'Existing Customer Id' %}
+					<input type="hidden" name="option[{{ option.product_option_id }}]" value="{{ existing_customer_id }}" placeholder="{{ option.value }}" id="event_existing_customer_id" class="form-control" />
+					<input type="hidden" name="event_existing_customer_id" value="{{ option.product_option_id }}" placeholder="" id="product_option_existing_customer_id" class="form-control" /> 
+				{% endif %} #}
+				
+			{% if option.name == 'Event Time' %}
+					<input type="hidden" name="option[{{ option.product_option_id }}]" value="{{event_date}}" placeholder="{{ option.value }}" id="event_time" class="form-control" />
+					<input type="hidden" name="event_time_id" value="{{ option.product_option_id }}" placeholder="" id="event_time_id" class="form-control" /> 
+				{% endif %}
+			{% endfor %} 					  
+				<button type="submit" id="submitBtn" class="btn btn-primary" data-loading-text="<span>{{ button_submit }}</span>"><span>{{ button_submit }}</span></button>
+
+			</div>
+		</div>
+		{% else %}
+		<div class="buttons">
+    		<div class="register-button">
+    			 <a class="btn btn-warning">Sorry Event Registration Closed</a>
+    		</div>
+		</div>
+		{% endif %}
+	</form>
+{% if not j3.document.isPopup() %}
+      {{ content_bottom }}</div>
+    {{ column_right }}</div>
+</div>
+{% endif %}
+
+<script>
+// Get the input element
+var inputElement = document.getElementById('input-customerRegister');
+if (inputElement) {
+    inputElement.value = 1;
+    inputElement.setAttribute('value', 1);
+}
+
+var hiddenInput = document.getElementById("hidden-input-customerRegister");
+if (hiddenInput && hiddenInput.value === "0") {
+    inputElement.setAttribute('max', '999');
+}
+
+var event_payment_code_element = document.getElementById('event_payment_code');
+var event_payment_code = event_payment_code_element ? event_payment_code_element.value : 0;
+
+var event_payment_code_id_element = document.getElementById('event_payment_code_id');
+var event_payment_code_id = event_payment_code_id_element ? event_payment_code_id_element.value : 0;
+
+function getDataFromInputFields(prefix) {
+    var data = [];
+    $('input[name^="' + prefix + '"]').each(function() {
+        data.push($(this).val());
+    });
+    return data;
+}
+
+$(document).ready(function() {
+    // Submit button click event handling
+    $('#submitBtn').click(function(event) {
+        event.preventDefault();
+        
+        // Validate the form
+        var isValid = validateForm();
+
+        // If the form is valid, proceed with form submission
+        if (isValid) {
+            $('#error-warning').text('').removeClass('alert alert-danger');
+
+            // Submit the form
+            $('#registrationForm').submit();
+
+            addToCart(); // Ensure this function is defined elsewhere
+
+            // Get form data using FormData
+            var formData = new FormData($("#registrationForm")[0]);
+
+            // Get table data
+            var tableData = [];
+            $("#tableBody tr").each(function(index, row) {
+                var registerName = $(row).find('input[name^="registerName"]').val();
+                var product_id = $(row).find('select[name^="product_id"]').val();
+
+                if (registerName && product_id) {
+                    tableData.push({ registerName: registerName, product_id: product_id });
+                }
+            });
+
+            // Get the register_count value
+            var register_count = inputElement ? inputElement.value : 0;
+
+            // Append register_count to formData
+            formData.append("register_count", register_count);
+
+            // Add table data to form data
+            formData.append("tableData", JSON.stringify(tableData));
+
+            // Send AJAX request
+            $.ajax({
+                type: "POST",
+                url: "{{ your_ajax_endpoint }}", // Specify your backend endpoint
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    console.log("Success:", response);
+                },
+                error: function(error) {
+                    console.error("Error:", error);
+                }
+            });
+        }
+    });
+
+    function validateForm() {
+        var isValid = true;
+
+        // Clear previous error messages
+        $("#error-warning").empty().removeClass('alert alert-danger');
+
+        $("#tableBody tr").each(function(index, row) {
+            var registerName = $(row).find('input[name^="registerName"]').val().trim();
+            var product_id = $(row).find('select[name^="product_id"]').val();
+            var rowIsValid = true;
+
+            if (!registerName) {
+                $('#error-warning').text('Error: Please fill the Register Name field.');
+                $('#error-warning').addClass('alert alert-danger');
+                rowIsValid = false;
+            }
+
+            if (!product_id) {
+                $('#error-warning').text('Error: Please choose the game from the game list.');
+                $('#error-warning').addClass('alert alert-danger');
+                rowIsValid = false;
+            }
+
+            if (!rowIsValid) {
+                isValid = false;
+                return false; // Exit the .each loop
+            }
+
+            $('select[name="product_id[]"]').each(function() {
+                var selectedOption = $(this).find('option:selected');
+                if (selectedOption.length > 0) {
+                    var capacity = parseInt(selectedOption.data('capacity')) || 0;
+                    var existingUsers = parseInt(selectedOption.data('existing-users')) || 0;
+                    var quantity = parseInt(inputElement ? inputElement.value : 0);
+                    var remainuser = capacity - existingUsers;
+
+                    if (remainuser > capacity ) {
+                        $('#error-warning').text('Error: Game exceeds its max limit (' + capacity + '). Please choose another game.');
+                        $('#error-warning').addClass('alert alert-danger');
+                        isValid = false;
+                    }
+                }
+            });
+        });
+
+        var inputValue = $('#input-customerRegister').val();
+        if (!inputValue.trim()) {
+            $('#error-warning').text('Error: Number of Persons to register field value cannot be empty.');
+            $('#error-warning').addClass('alert alert-danger');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+});
+    
+    function addToCart() {
+    var isValid = true;
+
+    // Collect necessary data
+    var product_id = document.getElementById('ticket_product_id')?.value || '';
+    var event_venue = document.getElementById('event_venue')?.value || '';
+    var event_venue_id = document.getElementById('product_option_event_venue_id')?.value || '';
+    var event_registeruse_id = document.getElementById('product_option_event_registeruse_id')?.value || '';
+    var quantity = document.getElementById('input-customerRegister')?.value || 0;
+    var event_payment_code = document.getElementById('event_payment_code')?.value || '';
+    var event_payment_code_id = document.getElementById('event_payment_code_id')?.value || '';
+    var events_name = document.getElementById('events_name')?.value || '';
+    var event_name_id = document.getElementById('product_option_event_name_id')?.value || '';
+    var product_option_event_product_name = document.getElementById('product_option_event_product_name')?.value || '';
+    var registeruser_count_id = document.getElementById('registeruser_count_id')?.value || '';
+    var event_time = document.getElementById('event_time')?.value || '';
+    var event_time_id = document.getElementById('event_time_id')?.value || '';
+
+    // Collect register names
+    var registerNameInputs = document.querySelectorAll('input[name="registerName[]"]');
+    var registerNames = Array.from(registerNameInputs)
+        .map(input => input.value.trim())
+        .filter(value => value !== '');
+
+    // Collect selected product IDs and names
+    var event_product_id_selects = document.querySelectorAll('select[name="product_id[]"]');
+    var event_product_ids = [];
+    var product_names = [];
+
+    event_product_id_selects.forEach(function(select) {
+        var selectedOption = select.options[select.selectedIndex];
+        if (selectedOption) {
+            var value = selectedOption.value.trim();
+            if (value) {
+                event_product_ids.push(value);
+                var productName = selectedOption.getAttribute('data-productname');
+                if (productName) {
+                    product_names.push(productName);
+                }
+            }
+        }
+    });
+
+    // Format product name list
+    var event_product_name_list = product_names.join(',').replace(/,\s+/g, ',');
+
+    // Combine register names into a list
+    var registerNamelist = registerNames.join(', ');
+
+    // Create options payload
+    var option = {};
+    option[event_name_id] = events_name;
+    option[event_venue_id] = event_venue;
+    option[event_time_id] = event_time;
+    option[event_registeruse_id] = registerNamelist;
+    option[product_option_event_product_name] = event_product_name_list;
+    option[registeruser_count_id] = quantity;
+
+    // Create payload
+    var payload = {
+        product_id: product_id,
+        quantity: quantity,
+        option: option
+    };
+
+    // Send AJAX request
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/index.php?route=checkout/cart/add', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+       // if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                // Handle success
+                var response = JSON.parse(xhr.responseText);
+                if (!response.error) {
+                    window.location.href = '/index.php?route=checkout/cart';
+                }
+            } else {
+                // Handle error
+                var response = JSON.parse(xhr.responseText);
+                var errorMessage = '';
+
+                if (response.error && response.error.option) {
+                    for (var key in response.error.option) {
+                        if (response.error.option[key]) {
+                            errorMessage += response.error.option[key] + '<br>';
+                        }
+                    }
+                } else {
+                    errorMessage = 'An error occurred while adding to cart.';
+                }
+
+                document.getElementById('error-warning').innerHTML = errorMessage;
+            }
+       // }
+    };
+
+    xhr.send(JSON.stringify(payload));
+
+    return isValid;
+}
+
+
+$('#account .form-group[data-sort]').detach().each(function() {
+	if ($(this).attr('data-sort') >= 0 && $(this).attr('data-sort') <= $('#account .form-group').length) {
+		$('#account .form-group').eq($(this).attr('data-sort')).before(this);
+	}
+
+	if ($(this).attr('data-sort') > $('#account .form-group').length) {
+		$('#account .form-group:last').after(this);
+	}
+
+	if ($(this).attr('data-sort') == $('#account .form-group').length) {
+		$('#account .form-group:last').after(this);
+	}
+
+	if ($(this).attr('data-sort') < -$('#account .form-group').length) {
+		$('#account .form-group:first').before(this);
+	}
+});
+
+$('input[name=\'customer_group_id\']').on('change', function() {
+	$.ajax({
+		url: 'index.php?route=account/event_register/customfield&customer_group_id=' + this.value,
+		dataType: 'json',
+		success: function(json) {
+			$('.custom-field').hide();
+			$('.custom-field').removeClass('required');
+
+			for (i = 0; i < json.length; i++) {
+				custom_field = json[i];
+
+				$('#custom-field' + custom_field['custom_field_id']).show();
+
+				if (custom_field['required']) {
+					$('#custom-field' + custom_field['custom_field_id']).addClass('required');
+				}
+			}
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		}
+	});
+});
+
+$('input[name=\'customer_group_id\']:checked').trigger('change');
+
+$('button[id^=\'button-custom-field\']').on('click', function() {
+	var element = this;
+
+	$('#form-upload').remove();
+
+	$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file" /></form>');
+
+	$('#form-upload input[name=\'file\']').trigger('click');
+
+	if (typeof timer != 'undefined') {
+    	clearInterval(timer);
+	}
+        condole.log(FormData($('#form-upload')[0]));
+	timer = setInterval(function() {
+		if ($('#form-upload input[name=\'file\']').val() != '') {
+			clearInterval(timer);
+			$.ajax({
+				url: 'index.php?route=tool/upload',
+				type: 'post',
+				dataType: 'json',
+				data: new FormData($('#form-upload')[0]),
+				cache: false,
+				contentType: false,
+				processData: false,
+				beforeSend: function() {
+					$(element).button('loading');
+				},
+				complete: function() {
+					$(element).button('reset');
+				},
+				success: function(json) {
+					$(element).parent().find('.text-danger').remove();
+
+					if (json['error']) {
+						$(node).parent().find('input').after('<div class="text-danger">' + json['error'] + '</div>');
+					}
+
+					if (json['success']) {
+						alert(json['success']);
+
+						$(element).parent().find('input').val(json['code']);
+					}
+				},
+				error: function(xhr, ajaxOptions, thrownError) {
+					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				}
+			});
+		}
+	}, 500);
+});
+$(document).ready(function () {
+    // Function to update table rows
+    function updateTableRows(numToShow) {
+        // Remove existing rows
+        $('#tableBody').empty();
+
+        // Append new rows based on numToShow
+        for (var i = 1; i <= numToShow; i++) {
+            $('#tableBody').append(`
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <input type="text" name="registerName[]" value="" id="userReg_name_${i}" class="form-control" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                           <select name="product_id[]" id="input-product-id_${i}" class="form-control">
+                                <option value="">{{ text_select }}</option>
+                                {% for product in products %}
+                                    {% if product.product_id != '6394' %}
+                                        <option data-existing-users="{{ product.existing_registered_users }}" data-capacity="{{ product.maxplayer }}" data-productname="{{ product.name }}" value="{{ product.product_id }}" id="event_product_id">{{ product.name }} ({{ product.existing_registered_users }}/{{ product.maxplayer }})</option>
+                                    {% else %}
+                                        <option data-existing-users="{{ product.existing_registered_users }}" data-capacity="{{ openRegister }}" data-productname="{{ product.name }}" value="{{ product.product_id }}" id="event_product_id">{{ product.name }} ({{ openRegister }})</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            `);
+        }
+    }
+
+    // Show 1 row by default
+    updateTableRows(1);
+
+    // Show/hide rows based on `#input-customerRegister` value when the input changes
+    $('#input-customerRegister').on('input', function () {
+        var inputValue = $(this).val().trim(); // Trim whitespace from input
+        var maxAllowed = parseInt($(this).attr('max'), 10) || 0; // Parse max attribute value
+        var eventmaxregister = parseInt($('#hidden-input-customerRegister').val(), 10) || 0; // Hidden max value
+
+        // Validate input
+        if (inputValue === '') {
+            // Show 1 row and display an error message
+            updateTableRows(1);
+            $('#error-warning').text('Error: Number of Persons to register field value cannot be empty');
+            $('#error-warning').addClass('alert alert-danger');
+            return;
+        }
+
+        var numToShow = parseInt(inputValue, 10);
+
+        if (isNaN(numToShow) || numToShow <= 0) {
+            // Handle invalid or zero values
+            updateTableRows(1);
+            $('#error-warning').text('Error: Please enter a valid number of persons to register.');
+            $('#error-warning').addClass('alert alert-danger');
+            return;
+        }
+
+        // Check against maximum allowed
+        if (numToShow > maxAllowed) {
+            updateTableRows(0);
+            var errorMessage = `Exceeds the maximum number of register users permitted (${maxAllowed})`;
+            $('#error-warning').text('Error: ' + errorMessage);
+            $('#error-warning').addClass('alert alert-danger');
+            return;
+        }
+
+        // Check against event-specific maximum registration
+        if (eventmaxregister !== 0 && numToShow > eventmaxregister) {
+            updateTableRows(0);
+            var eventErrorMessage = `Exceeds the maximum number of register users permitted (${eventmaxregister})`;
+            $('#error-warning').text('Error: ' + eventErrorMessage);
+            $('#error-warning').addClass('alert alert-danger');
+            return;
+        }
+
+        // Clear error and show rows
+        $('#error-warning').text('');
+        $('#error-warning').removeClass('alert alert-danger');
+        $('#tableBody').show();
+
+        // Update rows
+        updateTableRows(numToShow);
+    });
+});
+
+$(document).ready(function () {
+    var eventsId = $('#events_id').val();
+
+    if (eventsId) {
+        $.ajax({
+            url: 'index.php?route=account/event_register/index',
+            type: 'POST',
+            data: { events_id: eventsId },
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    $('#eventName').text(response.event_name || '');
+                    $('#eventDate').text(response.event_date || '');
+                } else if (response.error) {
+                    $('#eventDetails').html('<p class="text-danger">' + response.error + '</p>');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', error);
+                $('#eventDetails').html('<p class="text-danger">An error occurred while fetching event data. Please try again.</p>');
+            }
+        });
+    }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+<script>
+jQuery(function($) {
+    $( '#list-view' ).trigger( "click" );
+});
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('showGamesBtn').addEventListener('click', function() {
+        $('#gamesModal').modal('show');
+    });
+});
+
+$(document).ready(function() {
+     $('#gamesModal').on('shown.bs.modal', function() {
+    // Initialize Magnific Popup for video links with YouTube embed support
+    $('.popup-video').magnificPopup({
+        type: 'iframe',
+        mainClass: 'mfp-fade',
+        removalDelay: 160,
+        preloader: false,
+        fixedContentPos: false,
+        // Configure iframe patterns to properly embed YouTube videos
+        iframe: {
+            patterns: {
+                youtube: {
+                    index: 'youtube.com/',
+                    id: function(url) {
+                        var m = url.match(/[\\?\\&]v=([^\\?\\&]+)/);
+                        return m && m[1] ? m[1] : null;
+                    },
+                    src: 'https://www.youtube.com/embed/%id%?autoplay=1'
+                }
+            }
+        },
+        callbacks: {
+            open: function() {
+                // Add style when popup opens
+                $('body').addClass('modal-open');
+                $('.modal').css('z-index', 1);
+            },
+            close: function() {
+                // Remove style when popup closes
+                $('body').removeClass('modal-open');
+                $('.modal').css('z-index', '');
+            }
+        }
+    });
+    });
+    // Check if games list is empty
+    if ($('#gamesTableBody tr').length === 0) {
+        $('#noGamesMessage').show();  // Show the no games message
+    } else {
+        $('#noGamesMessage').hide();   // Hide the message if there are games
+    }
+
+    $('#gamesTableBody').parent('table').DataTable({
+        "pageLength": 10,
+        "lengthMenu": [10, 25, 50],
+        "order": [[0, "desc"]],
+        "responsive": true,
+        "language": {
+            "search": "Search:",
+            "lengthMenu": "Show _MENU_ entries",
+            "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+            "infoEmpty": "Showing 0 to 0 of 0 entries",
+            "infoFiltered": "(filtered from _MAX_ total entries)",
+            "paginate": {
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "previous": "Previous"
+            }
+        },
+        "columns": [
+            { "data": "Image" },
+            { "data": "name" },
+            { "data": "registrations" },
+            { "data": "length" },
+            { "data": "game_type" },
+            { "data": "difficulty" },
+            { "data": "video", "orderable": false }
+        ]
+    });
+});
+
+</script>
+{{ footer }} 

@@ -1,0 +1,760 @@
+{{ header }}
+ 
+{% if events_module_show_map == 1 %}
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			var cursorX;
+			var cursorY;
+			if (window.Event) {
+				document.captureEvents(Event.MOUSEMOVE);
+			}
+			document.onmousemove = getCursorXY;
+			jQuery(".mapThis").each(function() {
+				var dPlace = jQuery(this).attr("place");
+				var dZoom = jQuery(this).attr("zoom");
+				var dText = jQuery(this).html();
+				jQuery(this).html('<a style="text-decoration:none; border-bottom:1px dotted #999" href="https://maps.google.com/maps?q=' + dPlace + ',' + dZoom + 'z">' + dText + '</a>');
+				// jQuery(this).html('<a onmouseover="mapThis.show(this);" style="text-decoration:none; border-bottom:1px dotted #999" href="https://maps.google.com/maps?q=' + dPlace + '&z=' + dZoom + '">' + dText + '</a>');
+			});
+		});
+		// var mapThis=function(){
+		// 	var tt;
+		// 	var errorBox;
+		// 	return{
+		// 		show:function(v){
+		// 			if (tt == null) {
+		// 				var pNode = v.parentNode;
+		// 				pPlace = jQuery(pNode).attr("place");
+		// 				pZoom = parseInt(jQuery(pNode).attr("zoom"));
+		// 				pText = jQuery(v).html();
+		// 				tt = document.createElement('div');
+		// 				jQuery(tt).html('<a href="https://maps.google.com/maps?q=' + pPlace + '&z=11" target="new"><img border=0 src="https://maps.google.com/maps/api/staticmap?center=' + pPlace + '&zoom=' + pZoom + '&size=300x300&sensor=false&format=png&markers=color:blue|' + pPlace + '"></a>');
+		// 				tt.addEventListener('mouseover', function() { mapHover = 1; }, true);
+		// 				tt.addEventListener('mouseout', function() { mapHover = 0; }, true);
+		// 				tt.addEventListener('mouseout', mapThis.hide, true);
+		// 				document.body.appendChild(tt);
+		// 			}
+		// 			fromleft = cursorX;
+		// 			fromtop = cursorY;
+		// 			fromleft = fromleft - 25;
+		// 			fromtop = fromtop - 25;
+		// 			tt.style.cssText = "position:absolute; left:" + fromleft + "px; top:" + fromtop + "px; z-index:999; display:block; padding:1px; margin-left:5px; background-color:#333; width:302px; -moz-box-shadow:0 1px 10px rgba(0, 0, 0, 0.5);";
+		// 			tt.style.display = 'block';
+		// 		},
+		// 		hide:function(){
+		// 			tt.style.display = 'none';
+		// 			tt = null;
+		// 		}
+		// };
+		// }();
+		function getCursorXY(e) {
+			cursorX = (window.Event) ? e.pageX : event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+			cursorY = (window.Event) ? e.pageY : event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+		}
+	</script>
+{% endif %}
+
+<div class="container">
+	<ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+            <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+	</ul>
+	
+	<div class="row">{{ column_left }}
+        {% if column_left and column_right %}
+            {% set class = 'col-sm-6' %}
+        {% elseif column_left or column_right %}
+            {% set class = 'col-sm-9' %}
+        {% else %}
+            {% set class = 'col-sm-12' %}
+        {% endif %}
+		
+		<div id="content" class="{{ class }}">{{ content_top }}
+			<div class="row">
+
+		        {% if column_left and column_right %}
+		            {% set class = 'col-sm-6' %}
+		        {% elseif column_left or column_right %}
+		            {% set class = 'col-sm-6' %}
+		        {% else %}
+		            {% set class = 'col-sm-6' %}
+		        {% endif %}
+				<div class="text-center">
+					<h1 class="title page-title"><span>{{ event.name }}</span></h1>
+				</div>
+				<div class="event-details-full-section">
+				<div class="col-md-12 col-sm-12 col-lg-12 col-xs-12 eventd-image-section">
+					{% if thumb or images %}
+						<ul class="thumbnails">
+						  	{% if thumb is defined %}
+						  		<li><a class="thumbnail" href="{{ popup }}" title="{{ heading_title }}"><img src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" /></a></li>
+						  	{% endif %}
+							{#
+						  	{% if images is defined %}
+						  		{% for image in images %}
+						  			<li class="image-additional"><a class="thumbnail" href="{{ image.popup }}" title="{{ heading_title }}"> <img src="{{ image.thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" /></a></li>
+						  		{% endfor %}
+						  	{% endif %}
+							#}
+						</ul>
+					{% endif %}
+				</div>
+
+		        {% if column_left and column_right %}
+		            {% set class = 'col-sm-6' %}
+		        {% elseif column_left or column_right %}
+		            {% set class = 'col-sm-6' %}
+		        {% else %}
+		            {% set class = 'col-sm-6' %}
+		        {% endif %}
+
+				<div class="col-md-12 col-sm-12 col-lg-12 col-xs-12 eventd-content-section">
+					<div class='content-section-d'>
+					<div class="description">  
+						{% if event.start_date is defined %}
+						    {% if event.start_date == event.end_date %}
+						  	    <span><strong>{{ text_date }}</strong></span> {{ event.start_date }} ({{ event.start_time }} - {{ event.end_time }})<br />
+						  	{% else %}
+    						  	{% if event.start_date is defined %}
+    						  	    <span><strong>{{ text_start_date }}</strong></span> {{ event.start_date }} {{ event.start_time }}<br />
+    						  	{% endif %}    
+    						  	{% if event.end_date is defined %}
+    						  	    <span><strong>{{ text_end_date }}</strong></span> {{ event.end_date }} {{ event.end_time }}<br />
+    						    {% endif %}
+    						{% endif %}   
+						{% endif %}
+		
+						{% if event.venue is defined %}
+						  	<span><strong>{{ text_venue }}</strong></span> <span class="mapThis" place="{{ event.venue }}/@{{ event.latitude }},{{ event.longitude }}" zoom="17">{{ event.venue }}</span><br />
+						{% endif %}
+				    </div>
+		
+
+                     <div class="row mt-5" style="margin: 15px auto;">
+                		{#<div id="product-info-table-container"  style="max-width: 800px;  overflow-x: scroll;"> #}
+                		    <div id="product-info-table-container" style="max-height: 400px;overflow: scroll;">
+                			<table id="product-info-table" class="table table-bordered" >
+                				<tbody>
+                					<tr>
+                					  <th colspan="2">Game</th>
+                					   <th>Registrations</th>
+                					   <th>Length</th>
+                					   <th>Game Type</th>
+                						<th>Difficulty</th>
+                						<th>Start Time</th>
+                						<th>Taught by</th>
+                						<th>Video</th>
+                					</tr>
+                						{% for event in events %}
+                					<tr>                                     
+                							<td colspan="2">{{ event.name }}</td>
+                							 {% if event.product_id != '6394' %}
+                							<td>{{ event.existing_registered_users }} / {{ event.maxplayer }}</td>
+                							{% endif %}
+                							<td>{{ event.length }}</td>
+                							<td>{{ event.game_type }}</td>
+                							<td>{{ event.difficulty }}</td>
+                							<td>{{ event.start_time }}</td>
+                							<td>{{ event.taught_by }}</td>  
+                							 <td>{% if event.video %}
+                                                <a class="popup-video btn" href="{{ event.video }}">View</a>
+                                             {% endif %}</td>  
+                					</tr>
+                						{% endfor %}
+                				</tbody>
+                			</table>
+                		</div>
+                	</div>
+
+					<div class="price">
+					    <hr>
+					    <strong>{{ text_product }}</strong>
+						{% if products is not empty %}
+							{% set count = 1 %}
+							{% for product in products %}
+							{% if product.name != 'None' and product.product_id != '6394' %}
+						  		<br><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ count }}: 
+										<a href="{{ product.href }}" target="_blank">{{ product.name }} ({{ product.existing_registered_users }}/{{ product.maxplayer }})</a> 
+						  		</span>
+								{% set count = count+1 %}
+								{% endif %}
+							{% endfor %}
+						{% else %}
+						  	<span>{{ text_no_product }}</span>
+						{% endif %}
+						{% if(count<=0) %}
+						  	<span>{{ text_no_product }}</span>
+						{% endif %}
+				     </div>
+					
+				     <hr>
+				     	{% if cost > 0 %}
+				     <div class="Event-ticket-fee" style="margin: 0px 0px 10px; font-size: 2.5rem;"><p><b>The entry fee for this event:</b> <span style="color:red;"><b>${{cost}}</b></span></p></div>
+				      {% else %}
+				      <div class="Event-ticket-fee" style="margin: 0px 0px 10px; font-size: 2.5rem;"><p><b>The entry fee for this event:</b> <span style="color:green;"><b>Free</b></span></p></div>
+				      	{% endif %}
+				    <div class="registration-groups"> 
+    					{% if event.expired=='' %}
+    				    <div class="register-button">
+    				         <a href="{{ event.href }}" class="btn">Register</a>
+    				    </div> 
+    					{% else %}
+    					<div class="register-button">
+    				         <a class="btn btn-warning">Sorry Event Registration Closed</a>
+    				    </div> 
+    					{% endif %}
+    					<div class="registration-count">
+    					<p>Registration : {{ sum_of_existing_registered_users }}/{{ eventmaxRegister }}</p>
+    					</div>
+        				<a href="YOUR_GOOGLE_CALENDAR_EVENT_LINK" target="_blank" class="btn" style="margin: 0px 0px 0px 20px;">  Add to Calendar    </a> 
+					</div>
+				    {% if is_logged %}
+				        <span></span>
+				    {% else %}
+				        <span>Login to your account for event registrations</span>
+				    {% endif %}
+				     
+				     <hr>
+				     
+				     <ul class="nav nav-tabs">
+				        {% if event.description is defined %}
+							<li class="active"><a href="#tab-description" data-toggle="tab">{{ tab_description }}</a></li>
+						{% endif %}
+						{% if contact_info is defined %}
+							<li><a href="#tab-contact" data-toggle="tab">{{ tab_contact }}</a></li>
+						{% endif %}
+					
+				    </ul>
+					
+					<div class="tab-content">
+						{% if event.description is defined %}
+							<div class="tab-pane active" id="tab-description">{{ event.description }}</div>
+						{% endif %}
+						
+						{% if contact_info is defined %}
+							<div class="tab-pane" id="tab-contact">
+								{% if contact_info.contact_name!='' %}
+									
+									<div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+									      <strong>{{ text_contact_name }}</strong>
+									</div>
+									<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+									      {{ contact_info.contact_name }}
+									</div>
+									<div style="clear:both;">&nbsp;</div>
+								
+								{% endif %}
+								
+								{% if contact_info.contact_phone!='' %}
+								
+									<div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+										<strong>{{ text_contact_phone }}</strong>
+									</div>
+									<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+										{{ contact_info.contact_phone }}
+									</div>
+									<div style="clear:both;">&nbsp;</div>
+									
+								{% endif %}
+
+								{% if contact_info.contact_fax!='' %}
+								
+									<div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+										<strong>{{ text_contact_fax }}</strong>
+									</div>
+									<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+										{{ contact_info.contact_fax }}
+									</div>
+									<div style="clear:both;">&nbsp;</div>
+								
+								{% endif %}
+
+								{% if contact_info.contact_email!='' %}
+								
+									<div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+										<strong>{{ text_contact_email }}</strong>
+									</div>
+									<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+										{{ contact_info.contact_email }}
+									</div>
+									<div style="clear:both;">&nbsp;</div>
+								
+								{% endif %}
+
+								{% if contact_info.contact_add!='' %}
+								
+									<div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+										<strong>{{ text_contact_add }}</strong>
+									</div>
+									<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+										{{ contact_info.contact_add }}
+									</div>
+									<div style="clear:both;">&nbsp;</div>
+								
+								{% endif %}
+							</div>
+						{% endif %}
+					</div>
+				      
+				      
+				     <div class="review">
+						<hr>
+						<!-- AddThis Button BEGIN -->
+						<div class="addthis_toolbox addthis_default_style"><a class="addthis_button_facebook_like" fb:like:layout="button_count"></a> <a class="addthis_button_tweet"></a> <a class="addthis_button_pinterest_pinit"></a> <a class="addthis_counter addthis_pill_style"></a></div>
+						<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-515eeaf54693130e"></script> 
+						<!-- AddThis Button END --> 
+				    </div>
+				    
+				    {#
+				    {% if video is defined and video!='' %}
+						<div class="price event-video-container">
+						  <h3>Video</h3>
+						  <div class="">
+						    <iframe width="100%" height="345"
+						    src="https://www.youtube.com/embed/{{ video }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+						    </iframe>
+						  </div>
+						  
+						</div>
+				    {% endif %}
+					#}
+					</div>
+				      
+				</div>
+				</div>
+			</div>
+		{{ content_bottom }}</div>
+		
+	{{ column_right }}</div>
+</div>
+{#
+<script>
+        // Selecting the iframe element
+        var frame = document.getElementById("Iframe");
+          
+        // Adjusting the iframe height onload event
+        frame.onload = function()
+        // function execute while load the iframe
+        {
+          // set the height of the iframe as 
+          // the height of the iframe content
+          frame.style.height = 
+          frame.contentWindow.document.body.scrollHeight + 'px';
+           
+  
+         // set the width of the iframe as the 
+         // width of the iframe content
+         frame.style.width  = 
+          frame.contentWindow.document.body.scrollWidth+'px';
+              
+        }
+        </script>
+        #}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const eventDetails = {
+        title: '{{ event.name }}',
+        startDate: '{{ event.calender_start_date }}T{{ event.calender_start_time }}00', // Format: YYYY-MM-DDTHH:MM:SS
+        endDate: '{{ event.calender_end_date }}T{{ event.calender_end_time }}00',
+        details: `{{ event.description }}`,
+        location: '{{ event.venue }}',
+    };
+
+    // Construct the Google Calendar event link
+    const eventLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventDetails.title)}&dates=${eventDetails.startDate}/${eventDetails.endDate}&details=${encodeURIComponent(eventDetails.details)}&location=${encodeURIComponent(eventDetails.location)}`;
+
+    // Update the href attribute of the button with the generated link
+    document.querySelector('a[href="YOUR_GOOGLE_CALENDAR_EVENT_LINK"]').href = eventLink;
+});
+</script>
+<style>
+#product-info-table th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color:rgba(248,248,248,1);
+}
+.thumbnail>img {
+    mix-blend-mode: multiply;
+}
+.route-extension-module-events-events-view .thumbnails{
+    padding-left: 0px;
+    list-style: none;
+}
+.route-extension-module-events-events-view .thumbnail{
+    border:none !important;
+    background: none !important;
+}
+.route-extension-module-events-events-view .page-title::after {content: none !important;}
+
+.registration-groups{display:flex; align-items: center;}
+.registration-count p {
+    margin: auto;
+    padding-left: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+h1.title.page-title{
+	max-width: 500px;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+.content-section-d{
+	max-width:600px;
+	margin:0 auto;
+}
+.event-details-full-section{
+	background-color:white;
+}
+.event-video-container{
+	margin:0 auto;
+	text-align:center;
+}
+@media(max-width:600px){
+	.registration-groups {
+		flex-direction: column;
+		gap: 10px;
+		text-align: center;
+	}
+	.content-section-d{
+		text-align: center;
+	}
+}
+
+
+
+/* Event Design change */
+/*
+@media(min-width:600px){
+
+	.route-extension-module-events-events .product-list .product-thumb {
+		display: flex;
+		flex-direction: row-reverse;
+		justify-content: space-around;
+	}
+
+	.route-extension-module-events-events .product-thumb .caption {
+
+		min-height: 200px; !important
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+		position: unset;
+		margin-left: 30px;
+		position: unset;
+		justify-content: center;
+	}
+
+	.route-extension-module-events-events .product-thumb .caption h4 a{
+
+		color: black;
+		text-decoration: none;
+		
+	}
+
+	.route-extension-module-events-events .product-layout{
+
+		background: #E8EFF6;
+		margin: 20px 0px;
+		box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+		transition:.7s ease;
+
+	}
+
+	.route-extension-module-events-events .product-layout .product-thumb .image{
+
+		padding: 15px !important;
+
+	}
+
+	.route-extension-module-events-events .product-list .product-thumb {
+		display: flex;
+		flex-direction: row-reverse;
+		align-items: center;
+		background: white;
+		justify-content: space-between;
+		padding-left: 15%;
+	}
+
+	.route-extension-module-events-events .caption p:nth-child(3) {
+		color: white;
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 15%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		justify-content: center !important;
+		gap: 25px;
+		padding: 30px;
+		background: #333;
+		height: 100%;
+	}
+
+	.route-extension-module-events-events img.img-responsive {
+		height: 150px;
+	}
+	.route-extension-module-events-events .product-list .image {
+		width: 20%;
+	}
+
+	.route-extension-module-events-events .product-thumb div:nth-child(2) {
+		width: 80%;
+	}
+
+	.route-extension-module-events-events .row div:nth-child(2),#content .row div:nth-child(4){
+				margin-top:6px;
+	}
+
+
+
+	.route-extension-module-events-events .product-list .image{
+			
+			display:flex;
+			align-items:center;
+			transition:.5s ease;
+
+	}
+
+	.route-extension-module-events-events .product-list .image {
+		border-left: 2px solid #333;
+		justify-content:center;
+	}
+
+
+	label.control-label {
+		margin-top: 3px;
+	}
+
+}
+
+@media(max-width:600px){
+
+    .route-extension-module-events-events .product-list .product-thumb{
+	
+	    display:flex;
+		align-items: center;
+	
+	}
+	.route-extension-module-events-events .product-list .product-thumb .image{
+	
+	    padding:15px 0px 0px 0px!important;
+		margin-bottom:10px;
+	}
+	
+	.route-extension-module-events-events .product-list .product-thumb .caption{
+	
+	    align-items:center;
+		min-height:auto;
+		position:unset !important;
+	 
+	}
+	
+	.route-extension-module-events-events .caption h4 a{color:black; text-decoration:none;}
+	
+	.route-extension-module-events-events .product-list .product-thumb .caption p:nth-child(2){
+	
+	     display:none;
+	
+	}
+	
+	.route-extension-module-events-events .product-layout{
+	     
+	     margin:30px 0px;
+		 position: relative;
+		 background:white;
+         box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;		 
+	
+	}
+	
+    .route-extension-module-events-events .product-thumb {
+    padding-top: 15%;
+    }
+	
+	.route-extension-module-events-events .caption p:nth-child(3) {
+	
+		display:flex;
+		justify-content: center !important;
+		position: absolute;
+		width:100%;
+		background:#333;
+		top:0;
+		height: 15%;
+		color:white;
+		align-items: center;
+	}
+
+}
+
+.route-extension-module-events-events-view #content .row{
+
+    display:flex;
+	flex-direction:column;
+	align-items:center;
+
+}
+
+.route-extension-module-events-events-view .price,.description {
+    font-size: 16px;
+    line-height: 26px;
+}
+
+.route-extension-module-events-events-view .price span a,.description span a{
+    
+	text-decoration:none !important;
+	color:black;
+	border-bottom: none !important;
+	
+
+}
+
+.route-extension-module-events-events-view .registration-groups {
+    justify-content: space-between;
+    margin: 25px 0px;
+}
+
+.route-extension-module-events-events-view .thumbnail img{
+
+    height:400px;
+
+}
+
+.route-extension-module-events-events-view .image-additional{
+
+    display:none;
+
+}
+
+.route-extension-module-events-events-view .site-wrapper{
+
+    background:url(  );
+	background-size:cover;
+	background-position:center;
+	background-repeat:no-repeat;
+
+}
+
+.route-extension-module-events-events-view .grid-row.grid-row-3 {
+    background: #EEEEEE;
+}
+
+.route-extension-module-events-events-view .header.header-classic.header-lg {
+    background: white;
+    z-index: -1;
+}
+
+.route-extension-module-events-events-view #content{
+
+    padding-bottom:0px;
+
+}
+.route-extension-module-events-events-view #content .row{
+
+    background:#F8F8F8;
+
+}
+
+.route-extension-module-events-events-view .mid-bar.navbar-nav {
+    background: white;
+}	
+
+
+@media(max-width:600px){
+
+    .route-extension-module-events-events-view #content .row .col-sm-6 .description,.route-extension-module-events-events-view #content .row .col-sm-6 .price ,.route-extension-module-events-events-view #content .row .col-sm-6 .registration-groups , .route-extension-module-events-events-view #content .row .col-sm-6 .nav-tabs,.route-extension-module-events-events-view #content .row .col-sm-6 .tab-content,.route-extension-module-events-events-view #content .row .col-sm-6 .review {
+	
+						max-width: 80%;
+						margin: auto;
+						
+       }
+	   
+	   .route-extension-module-events-events-view .registration-groups {
+    flex-direction: column;
+	align-items: center;
+}
+
+    .route-extension-module-events-events-view #content .row .col-sm-6 span,.route-extension-module-events-events-view #content .row .col-sm-6{
+	text-align:center;
+	}
+	  
+}
+
+@media(min-width:600px) and (max-width:1000px){
+	.route-extension-module-events-events .product-list .image{
+		width: 35% !important;
+	}
+	
+	.route-extension-module-events-events .product-list .product-thumb{
+		padding-left: 25% !important;
+	}
+	
+	.route-extension-module-events-events .caption p:nth-child(3){
+		width:25% !important;
+	} 
+	.route-extension-module-events-events .product-list .image {
+		width: 35% !important;
+	}
+	
+	.route-extension-module-events-events .product-thumb .caption{
+		padding-right: 5% !important;
+	}
+}
+*/
+
+</style>
+<script type="text/javascript"><!--
+
+	$(document).ready(function() { 
+		$('.thumbnails').magnificPopup({
+			type:'image',
+			delegate: 'a',
+			gallery: {
+				enabled:true
+			}
+		});
+	});
+
+//--></script> 
+
+					
+<script>
+$(function() {
+    $('.popup-video').magnificPopup({
+        disableOn: 700,
+        type: 'iframe',
+        mainClass: 'mfp-fade',
+        removalDelay: 160,
+        preloader: false,
+        fixedContentPos: false
+    });
+});
+</script>
+
+<style>
+.content-section-d{
+	max-width:800px;
+	margin:0 auto;
+}
+.event-details-full-section{
+	background-color:white;
+}
+.event-video-container{
+	margin:0 auto;
+	text-align:center;
+}
+@media(max-width:600px){
+	.registration-groups {
+		flex-direction: column;
+		gap: 10px;
+		text-align: center;
+	}
+	.content-section-d{
+		text-align: center;
+	}
+}
+</style>
+{{ footer }}

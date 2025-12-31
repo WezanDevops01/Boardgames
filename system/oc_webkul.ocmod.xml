@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+  <name>Opencart Webkul Utilities</name>
+  <version>1.0.0</version>
+  <code>Opencart Webkul Utilities</code>
+  <author>Webkul</author>
+  <link>http://webkul.com</link>
+  <file path="system/engine/router.php">
+    <operation>
+      <search>
+        <![CDATA[ $this->registry = $registry; ]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+        $this->registry->set('ocutilities',new Ocutilities($this->registry));
+        //$this->registry->set('ochelper',new Ochelper($this->registry));
+        $this->registry->set('wkloader',new Wkloader($this->registry));
+      ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/controller/checkout/cart.php">
+    <operation>
+      <search>
+        <![CDATA[ 	$json['redirect'] = str_replace('&amp;', '&', $this->url->link('product/product', 'product_id=' . $this->request->post['product_id'])); ]]>
+      </search>
+      <add position="after" offset="2">
+        <![CDATA[
+
+        if ($this->config->get('module_marketplace_status')) {
+    			 if (isset($this->session->data['error_order_limit']) && $this->session->data['error_order_limit']) {
+             $json['success'] = $this->session->data['error_order_limit'];
+    				 $json['total']    = $this->session->data['common_cart_total'];
+    			  	unset($json['redirect']);
+    					unset($this->session->data['common_cart_total']);
+    					unset($this->session->data['error_order_limit']);
+    			 }
+    		}
+
+      ]]>
+      </add>
+    </operation>
+    <operation>
+      <search>
+        <![CDATA[ 	if (!$json) { ]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+
+        if ($this->config->get('module_marketplace_status') && !isset($json['error']['option'])) {
+          if (isset($this->session->data['error_order_limit']) && $this->session->data['error_order_limit']) {
+            $json['success']  = $this->session->data['error_order_limit'];
+            $json['error']    = $this->session->data['common_cart_total'];
+          }
+       }
+
+      ]]>
+      </add>
+    </operation>
+  </file>
+
+
+</modification>

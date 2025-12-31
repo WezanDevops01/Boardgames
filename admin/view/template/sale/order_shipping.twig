@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html dir="{{ direction }}" lang="{{ lang }}">
+<head>
+<meta charset="UTF-8" />
+<title>{{ title }}</title>
+<base href="{{ base }}" />
+<link href="view/javascript/bootstrap/css/bootstrap.css" rel="stylesheet" media="all" />
+<script type="text/javascript" src="view/javascript/jquery/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="view/javascript/bootstrap/js/bootstrap.min.js"></script>
+<link href="view/javascript/font-awesome/css/font-awesome.min.css" type="text/css" rel="stylesheet" />
+<link type="text/css" href="view/stylesheet/stylesheet.css" rel="stylesheet" media="all" />
+</head>
+<body>
+<div class="container">
+  {% for order in orders %}
+  <div>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>
+                    <!-- Add Logo in Invoice -->
+                    <div class="invoice_logo" >
+                    	{% if logo %}
+                    	    <img alt="{{ order.store_name }}" src="{{ logo }}">
+                    	{% else %}
+                    		<h1>{{ order.store_name }}</h1>
+                    	{% endif %}
+                    </div>  
+                    <!-- End of Add Logo in Invoice --> 
+                </td>
+                    
+                <td>
+                    <h1>{{ text_picklist }} #{{ order.order_id }}</h1>
+                </td>    
+            </tr>
+        </tbody>
+    </table>
+    
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <td colspan="2">{{ text_order_detail }}</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><address>
+            <strong>{{ order.store_name }}</strong><br/>
+            {{ order.store_address }}
+            </address>
+            <b>{{ text_telephone }}</b> {{ order.store_telephone }}<br/>
+            <b>{{ text_email }}</b> {{ order.store_email }}<br/>
+            <b>{{ text_website }}</b> <a href="{{ order.store_url }}">{{ order.store_url }}</a></td>
+          <td style="width: 50%;"><b>{{ text_date_added }}</b> {{ order.date_added }}<br/>
+            {% if order.invoice_no %}
+            <b>{{ text_invoice_no }}</b> {{ order.invoice_no }}<br/>
+            {% endif %}
+            <b>{{ text_order_id }}</b> {{ order.order_id }}<br/>
+            {% if order.shipping_method %}
+            {# <b>{{ text_shipping_method }}</b> {{ order.shipping_method }}<br/> #}
+             <b class="shipping_method">{{ text_shipping_method }}</b> 
+	<span class="shipping_method_data">{{ order.shipping_method }}</span><br/>
+            {% endif %}</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <td style="width: 50%;"><b>{{ text_shipping_address }}</b></td>
+          <td style="width: 50%;"><b>{{ text_contact }}</b></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ order.shipping_address }}</td>
+          <td>{{ order.email }}<br/>
+            {{ order.telephone }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <td><b>{{ column_location }}</b></td>
+          <td><b>{{ column_reference }}</b></td>
+          <td><b>{{ column_product }}</b></td>
+          <td><b>{{ column_weight }}</b></td>
+          <td><b>{{ column_model }}</b></td>
+           <td class="text-right"><b>Delivery Status</b></td>
+          <td class="text-right"><b>{{ column_quantity }}</b></td>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in order.product %}
+        <tr>
+          <td>{{ product.location }}</td>
+          <td>{% if product.sku %}
+            {{ text_sku }} {{ product.sku }}<br/>
+            {% endif %}
+            {% if product.upc %}
+            {{ text_upc }} {{ product.upc }}<br/>
+            {% endif %}
+            {% if product.ean %}
+            {{ text_ean }} {{ product.ean }}<br/>
+            {% endif %}
+            {% if product.jan %}
+            {{ text_jan }} {{ product.jan }}<br/>
+            {% endif %}
+            {% if product.isbn %}
+            {{ text_isbn }} {{ product.isbn }}<br/>
+            {% endif %}
+            {% if product.mpn %}
+            {{ text_mpn }}{{ product.mpn }}<br/>
+            {% endif %}</td>
+          <td>{{ product.name }}
+            {% for option in product.option %}
+            <br/>
+            &nbsp;<small> - {{ option.name }}: {{ option.value }}</small>
+            {% endfor %}</td>
+          <td>{{ product.weight }}</td>
+          <td>{{ product.model }}</td>
+          <td class="text-right">{{product.deliverystatus}}</td>
+          <td class="text-right">{{ product.quantity }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if order.comment %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <td><b>{{ text_comment }}</b></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ order.comment }}</td>
+        </tr>
+      </tbody>
+    </table>
+    {% endif %}
+	<table class="table">
+      
+      <tbody>
+        <tr>
+		  <td style="width: 10%;">&nbsp;</td>
+          <td style="width: 65%;margin:0 auto;text-align:center"><h1>Please do a Google Review-it will mean a lot to us and help us grow!</h1><h1>Thank You</h1><h3>Ruba and Vinay</h3></td>
+          <td style="width: 25%;text-align:right;"><img src="https://www.boardgamesnmore.com/image/catalog/QR_Code_Google_Review.png" style="max-height:150px;"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% endfor %}
+</div>
+<script>
+$(function() {
+  // Utility function to create and append a popup
+  function appendPopup(type, imgUrl, altText) {
+    var classPrefix = type + "-popup";
+    // Only append if not already present
+    if ($('#' + classPrefix).length === 0) {
+      var popupHtml = `
+        <div class="${classPrefix}-overlay" id="${classPrefix}">
+          <div class="${classPrefix}-modal">
+            <img src="${imgUrl}" alt="${altText}">
+          </div>
+        </div>
+      `;
+      $('body').append(popupHtml);
+    }
+  }
+
+  // Shared CSS for both popups (add once)
+  if (!$('#shipping-delivery-popup-style').length) {
+    var style = `
+      <style id="shipping-delivery-popup-style">
+      .shipping-popup-overlay, .delivery-popup-overlay {
+        position: relative;
+        top: -40em;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        transition: opacity 0.2s;
+        left: 30em;
+      }
+      .shipping-popup-modal, .delivery-popup-modal {
+        border-radius: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+      .shipping-popup-modal img, .delivery-popup-modal img {
+        max-width: 150px;
+        max-height: 150px;
+        width: auto;
+        height: auto;
+        display: block;
+      }
+      @media (max-width: 500px) {
+        .shipping-popup-modal img, .delivery-popup-modal img { max-width: 90vw; max-height: 60vw; }
+        .shipping-popup-modal, .delivery-popup-modal { padding: 10px 5px 5px 5px; }
+      }
+      </style>
+    `;
+    $('head').append(style);
+  }
+
+  // Check for shipping method
+  var shippingMethod = $('.shipping_method_data').text().trim();
+  if (shippingMethod.indexOf("Pickup From Store") !== -1) {
+    appendPopup(
+      "shipping",
+      "/image/catalog/seal/Pickup_Seal_Blue.png",
+      "Pickup Ready"
+    );
+  }
+
+  // Check for delivery status
+  var delivery = $('.shipping_method_data').text().trim();
+  if (delivery.indexOf("Local Delivery") !== -1) {
+    appendPopup(
+      "delivery",
+      "/image/catalog/seal/Delivery_Seal_green.png",
+      "Delivery Ready"
+    );
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Product Back-in-Stock Alert (PRO) [Default] [2000-2200]</name>
+    <version>{huntbee_version}</version>
+    <author>HuntBee OpenCart Services</author>
+    <link>https://www.huntbee.com</link>
+	<code>huntbee_stock_notify_pro_style_ocmod</code>
+	
+	<file path="catalog/controller/product/product.php">
+			<operation>
+                <search><![CDATA[if ($product_info['minimum']) {]]></search>
+                <add position="before"><![CDATA[
+                $language_id = (int)$this->config->get('config_language_id');
+				$data['notify_button_p'] = $this->config->get('hb_oosn_notifybtn_p'.$language_id);
+				$data['notify_button_o'] = $this->config->get('hb_oosn_notifybtn_o'.$language_id);
+				$quantity = $data['quantity'] = $product_info['quantity'];
+				
+				$hb_oosn_stock_status = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty = (int)$this->config->get('hb_oosn_product_qty');
+				
+				$notify_form_type = ($this->config->get('hb_oosn_form_type')) ? $this->config->get('hb_oosn_form_type') : 'popup';
+				if ($notify_form_type == 'embed'){
+				    $data['notify_embed_type'] = true;
+				    $data['notifyform_inline'] = $this->load->controller('extension/module/hb_oosn/notify_embed');
+				}else{
+				    $data['notify_embed_type'] = false;
+				    $data['notifyform_inline'] = '';
+				}
+
+				$query = $this->db->query("SELECT stock_status_id FROM `" . DB_PREFIX . "product` WHERE product_id = '".(int)$product_id."'");
+				$stock_status_id = $data['stock_status_id'] = $query->row['stock_status_id'];
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+					$stock_status_id = 0;
+				}
+				
+                $hb_oosn_manual_rule = false;
+				$hb_oosn_manual_notify = false;
+				if ($this->config->get('hb_oosn_manual_rule')) {
+				    $hb_oosn_manual_rule = true;
+				    $is_notify = $this->db->query("SELECT count(*) as total FROM " . DB_PREFIX . "out_of_stock_product WHERE product_id = '".(int)$product_id."'");
+				    if ($is_notify->row['total'] > 0) {
+				        $hb_oosn_manual_notify = true;
+				    }
+				}
+				
+				if ((($quantity < $hb_oosn_product_qty) && (in_array($stock_status_id, $hb_oosn_stock_status)) && (!$hb_oosn_manual_rule)) || ($hb_oosn_manual_notify && (isset($data['options']) && !$data['options']) )) { 
+					$data['hb_oosn_enable'] = true;
+				}else{
+					$data['hb_oosn_enable'] = false;
+				}
+				
+			]]></add>
+            </operation>
+        </file>	
+        
+        <file path="catalog/view/theme/*/template/product/product.tpl">
+			<operation>
+                <search><![CDATA[<button type="button" id="button-cart" data-loading-text="<?php echo $text_loading; ?>" class="btn btn-primary btn-lg btn-block"><?php echo $button_cart; ?></button>]]>
+                </search>
+                <add position="replace"><![CDATA[
+				<?php if ($hb_oosn_enable){ ?>
+				    <?php if ($notify_embed_type && !$options) { ?>
+	                    <?php echo $notifyform_inline; ?>
+				    <?php } else { ?>
+				        <button type="button" id="button-cart" data-loading-text="<?php echo $text_loading; ?>" class="notify-button"><i class="fa fa-bell"></i> <?php echo $notify_button_p; ?></button>
+				    <?php } ?>
+                <?php } else { ?>
+                    <?php if ($notify_embed_type) { ?>
+                        <div id="notifyformforoption" style="display:none;">
+    		                <?php echo $notifyform_inline; ?>
+    		            </div>
+        				<div id="cartbutton" style="display:block;">
+        					<button type="button" id="button-cart" data-loading-text="<?php echo $text_loading; ?>" class="btn btn-primary btn-lg btn-block"><?php echo $button_cart; ?></button>
+        				</div>
+        			 <?php } else { ?>
+					    <button type="button" id="button-cart" data-loading-text="<?php echo $text_loading; ?>" class="btn btn-primary btn-lg btn-block"><?php echo $button_cart; ?></button>
+					 <?php } ?>
+				<?php } ?>
+				]]>
+				</add>
+            </operation>			
+		</file>
+		
+		<!--PRODUCT LAYOUT-->
+		<file path="catalog/model/catalog/product.php">
+            <operation>
+                <search><![CDATA[$query->row['quantity'],]]></search>
+                <add position="after"><![CDATA['stock_status_id'         => (isset($query->row['stock_status_id']))?$query->row['stock_status_id']:0,]]></add>
+            </operation>
+   		 </file>
+		
+		<file path="catalog/controller/product/product.php">
+			<operation>
+                <search><![CDATA[$data['text_model'] = $this->language->get('text_model');]]></search>
+                <add position="after"><![CDATA[
+                $language_id            = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status   = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty    = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$data['products'][]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$result['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($result['quantity'] < $hb_oosn_product_qty) && ((in_array($result['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$result['product_id'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'          => $result['quantity'],
+					'stock_status_id'   => $result['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/controller/product/category.php">
+			<operation>
+                <search><![CDATA[$data['text_model'] = $this->language->get('text_model');]]></search>
+                <add position="after"><![CDATA[
+                $language_id            = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status   = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty    = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$data['products'][]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$result['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($result['quantity'] < $hb_oosn_product_qty) && ((in_array($result['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$result['product_id'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'          => $result['quantity'],
+					'stock_status_id'   => $result['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/controller/product/manufacturer.php">
+			<operation>
+                <search><![CDATA[$data['text_model'] = $this->language->get('text_model');]]></search>
+                <add position="after"><![CDATA[
+                $language_id            = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status   = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty    = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$data['products'][]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$result['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($result['quantity'] < $hb_oosn_product_qty) && ((in_array($result['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$result['product_id'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'          => $result['quantity'],
+					'stock_status_id'   => $result['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/controller/product/search.php">
+			<operation>
+                <search><![CDATA[$data['text_model'] = $this->language->get('text_model');]]></search>
+                <add position="after"><![CDATA[
+                $language_id            = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status   = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty    = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$data['products'][]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$result['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($result['quantity'] < $hb_oosn_product_qty) && ((in_array($result['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$result['product_id'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'          => $result['quantity'],
+					'stock_status_id'   => $result['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/controller/product/special.php">
+			<operation>
+                <search><![CDATA[$data['text_model'] = $this->language->get('text_model');]]></search>
+                <add position="after"><![CDATA[
+                $language_id            = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status   = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty    = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$data['products'][]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$result['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($result['quantity'] < $hb_oosn_product_qty) && ((in_array($result['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$result['product_id'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'          => $result['quantity'],
+					'stock_status_id'   => $result['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/controller/product/compare.php">
+			<operation>
+                <search><![CDATA[$data['text_model'] = $this->language->get('text_model');]]></search>
+                <add position="after"><![CDATA[
+                $language_id            = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status   =  $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty    = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+			
+		    <operation>
+                <search><![CDATA[$data['products'][$product_id]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$result['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($product_info['quantity'] < $hb_oosn_product_qty) && ((in_array($product_info['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+            
+			<operation>
+                <search><![CDATA['name'         => $product_info['name'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'          => $product_info['quantity'],
+					'stock_status_id'   => $product_info['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/view/theme/*/template/product/product.tpl">
+			<operation>
+                <search><![CDATA[<span class="hidden-xs hidden-sm hidden-md"><?php echo $button_cart; ?></span> <i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[
+				<?php if ($product['notify_enable']){ ?>
+					<span class="hidden-xs hidden-sm hidden-md"><?php echo $notify_button_o; ?></span> <i class="fa fa-bell"></i>
+				<?php }else{ ?>
+					<span class="hidden-xs hidden-sm hidden-md"><?php echo $button_cart; ?></span> <i class="fa fa-shopping-cart"></i>
+				<?php } ?>
+				]]>
+                </add>
+            </operation>
+        </file>	
+		
+		<file path="catalog/view/theme/*/template/product/category.tpl">
+			<operation>
+                <search><![CDATA[<?php echo $button_cart; ?>]]></search>
+                <add position="replace"><![CDATA[<?php echo $product['button_cart']; ?>]]></add>
+            </operation>
+			<operation>
+                <search><![CDATA[<i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[<?php if ($product['notify_enable']){ ?><i class="fa fa-bell"></i><?php }else{ ?><i class="fa fa-shopping-cart"></i> <?php } ?>]]></add>
+            </operation>
+        </file>	
+		
+		<file path="catalog/view/theme/*/template/product/manufacturer_info.tpl">
+			<operation>
+                <search><![CDATA[<?php echo $button_cart; ?>]]></search>
+                <add position="replace"><![CDATA[<?php echo $product['button_cart']; ?>]]></add>
+            </operation>
+			<operation>
+                <search><![CDATA[<i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[<?php if ($product['notify_enable']){ ?><i class="fa fa-bell"></i><?php }else{ ?><i class="fa fa-shopping-cart"></i> <?php } ?>]]></add>
+            </operation>
+        </file>	
+		
+		<file path="catalog/view/theme/*/template/product/search.tpl">
+			<operation>
+                <search><![CDATA[<?php echo $button_cart; ?>]]></search>
+                <add position="replace"><![CDATA[<?php echo $product['button_cart']; ?>]]></add>
+            </operation>
+			<operation>
+                <search><![CDATA[<i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[<?php if ($product['notify_enable']){ ?><i class="fa fa-bell"></i><?php }else{ ?><i class="fa fa-shopping-cart"></i> <?php } ?>]]></add>
+            </operation>
+        </file>	
+		
+		<file path="catalog/view/theme/*/template/product/special.tpl">
+			<operation>
+                <search><![CDATA[<?php echo $button_cart; ?>]]></search>
+                <add position="replace"><![CDATA[<?php echo $product['button_cart']; ?>]]></add>
+            </operation>
+			<operation>
+                <search><![CDATA[<i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[<?php if ($product['notify_enable']){ ?><i class="fa fa-bell"></i><?php }else{ ?><i class="fa fa-shopping-cart"></i> <?php } ?>]]></add>
+            </operation>
+        </file>	
+		
+		<file path="catalog/view/theme/*/template/product/compare.tpl">
+			<operation>
+                <search><![CDATA[<?php echo $button_cart; ?>]]></search>
+                <add position="replace"><![CDATA[<?php echo $product['button_cart']; ?>]]></add>
+            </operation>
+			<operation>
+                <search><![CDATA[<i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[<?php if ($product['notify_enable']){ ?><i class="fa fa-bell"></i><?php }else{ ?><i class="fa fa-shopping-cart"></i> <?php } ?>]]></add>
+            </operation>
+        </file>	
+		
+		<!--MODULES LAYOUT-->
+		<file path="catalog/controller/extension/module/latest.php">
+			<operation>
+                <search><![CDATA[$data['button_cart'] = $this->language->get('button_cart');]]></search>
+                <add position="after"><![CDATA[
+				$language_id = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+            
+            <operation>
+                <search><![CDATA[$data['products'][]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$result['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($result['quantity'] < $hb_oosn_product_qty) && ((in_array($result['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$result['name'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'  => $result['quantity'],
+					'stock_status_id'   => $result['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/controller/extension/module/bestseller.php">
+			<operation>
+                <search><![CDATA[$data['button_cart'] = $this->language->get('button_cart');]]></search>
+                <add position="after"><![CDATA[
+				$language_id = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+            
+            <operation>
+                <search><![CDATA[$data['products'][]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$result['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($result['quantity'] < $hb_oosn_product_qty) && ((in_array($result['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$result['name'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'  => $result['quantity'],
+					'stock_status_id'   => $result['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/controller/extension/module/special.php">
+			<operation>
+                <search><![CDATA[$data['button_cart'] = $this->language->get('button_cart');]]></search>
+                <add position="after"><![CDATA[
+				$language_id = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+            
+            <operation>
+                <search><![CDATA[$data['products'][]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$result['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($result['quantity'] < $hb_oosn_product_qty) && ((in_array($result['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$result['name'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'  => $result['quantity'],
+					'stock_status_id'   => $result['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/controller/extension/module/featured.php">
+			<operation>
+                <search><![CDATA[$data['button_cart'] = $this->language->get('button_cart');]]></search>
+                <add position="after"><![CDATA[
+				$language_id = (int)$this->config->get('config_language_id');
+				$hb_oosn_stock_status = $this->config->get('hb_oosn_stock_status');
+				$hb_oosn_product_qty = (int)$this->config->get('hb_oosn_product_qty');
+				
+				if (empty($hb_oosn_stock_status)){ 
+					$hb_oosn_stock_status = array(0);
+				}
+				]]></add>
+            </operation>
+            
+            <operation>
+                <search><![CDATA[$data['products'][]]]></search>
+                <add position="before"><![CDATA[
+                $hb_oosn_m_rule 	= false;
+        		$hb_oosn_m_notify 	= false;
+        		if ($this->config->get('hb_oosn_manual_rule')) {
+        			$hb_oosn_m_rule = true;
+        			$is_notify = $this->db->query("SELECT count(*) as total FROM `" . DB_PREFIX . "out_of_stock_product` WHERE product_id = '".(int)$product_info['product_id']."'");
+        			if ($is_notify->row['total'] > 0) {
+        				$hb_oosn_m_notify = true;
+        			}
+        		}
+        		
+        		$notify_enable = ((!$hb_oosn_m_rule && ($product_info['quantity'] < $hb_oosn_product_qty) && ((in_array($product_info['stock_status_id'], $hb_oosn_stock_status)) || (in_array(0,$hb_oosn_stock_status)) ) || $hb_oosn_m_notify))? true : false;
+				]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[$product_info['name'],]]></search>
+                <add position="after"><![CDATA[
+					'quantity'          => $product_info['quantity'],
+					'stock_status_id'   => $product_info['stock_status_id'],
+					'button_cart'	    => $notify_enable ? $this->config->get('hb_oosn_notifybtn_o'.$language_id):$this->language->get('button_cart'),
+					'notify_enable'	    => $notify_enable ? true:false,
+					]]></add>
+            </operation>
+		</file>
+		
+		<file path="catalog/view/theme/*/template/extension/module/featured.tpl">
+			<operation>
+                <search><![CDATA[<?php echo $button_cart; ?>]]></search>
+                <add position="replace"><![CDATA[<?php echo $product['button_cart']; ?>]]></add>
+            </operation>
+			<operation>
+                <search><![CDATA[<i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[<?php if ($product['notify_enable']){ ?><i class="fa fa-bell"></i><?php }else{ ?><i class="fa fa-shopping-cart"></i> <?php } ?>]]></add>
+            </operation>
+        </file>	
+		
+		<file path="catalog/view/theme/*/template/extension/module/latest.tpl">
+			<operation>
+                <search><![CDATA[<?php echo $button_cart; ?>]]></search>
+                <add position="replace"><![CDATA[<?php echo $product['button_cart']; ?>]]></add>
+            </operation>
+			<operation>
+                <search><![CDATA[<i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[<?php if ($product['notify_enable']){ ?><i class="fa fa-bell"></i><?php }else{ ?><i class="fa fa-shopping-cart"></i> <?php } ?>]]></add>
+            </operation>
+        </file>	
+		
+		<file path="catalog/view/theme/*/template/extension/module/bestseller.tpl">
+			<operation>
+                <search><![CDATA[<?php echo $button_cart; ?>]]></search>
+                <add position="replace"><![CDATA[<?php echo $product['button_cart']; ?>]]></add>
+            </operation>
+			<operation>
+                <search><![CDATA[<i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[<?php if ($product['notify_enable']){ ?><i class="fa fa-bell"></i><?php }else{ ?><i class="fa fa-shopping-cart"></i> <?php } ?>]]></add>
+            </operation>
+        </file>	
+		
+		<file path="catalog/view/theme/*/template/extension/module/special.tpl">
+			<operation>
+                <search><![CDATA[<?php echo $button_cart; ?>]]></search>
+                <add position="replace"><![CDATA[<?php echo $product['button_cart']; ?>]]></add>
+            </operation>
+			<operation>
+                <search><![CDATA[<i class="fa fa-shopping-cart"></i>]]></search>
+                <add position="replace"><![CDATA[<?php if ($product['notify_enable']){ ?><i class="fa fa-bell"></i><?php }else{ ?><i class="fa fa-shopping-cart"></i> <?php } ?>]]></add>
+            </operation>
+        </file>	
+        
+        <file path="catalog/view/theme/*/template/product/product.tpl">
+			<operation>
+                <search><![CDATA[<select name="option[<?php echo $option['product_option_id']; ?>]"]]></search>
+                <add position="replace"><![CDATA[<select onchange="checkOptionQty()" name="option[<?php echo $option['product_option_id']; ?>]" ]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[<input type="radio" name="option[<?php echo $option['product_option_id']; ?>]" ]]></search>
+                <add position="replace"><![CDATA[<input type="radio" onchange="checkOptionQty()" name="option[<?php echo $option['product_option_id']; ?>]" ]]></add>
+            </operation>
+			
+			<operation>
+                <search><![CDATA[<input type="checkbox" name="option[<?php echo $option['product_option_id']; ?>][]" ]]></search>
+                <add position="replace"><![CDATA[<input type="checkbox" onchange="checkOptionQty()" name="option[<?php echo $option['product_option_id']; ?>][]" ]]></add>
+            </operation>
+		</file>
+
+</modification>
